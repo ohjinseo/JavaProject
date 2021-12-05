@@ -11,10 +11,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.LineBorder;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Main extends JFrame {
 
@@ -69,7 +72,9 @@ public class Main extends JFrame {
 		JMenu findBookMenu = new JMenu("\uB3C4\uC11C\uCC3E\uAE30");	//메뉴 - 도서찾기
 		findBookMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+				JOptionPane.showMessageDialog(null, "해당 도서를 대출하였습니다.\n1000-00-00 까지 반납해 주세요.", "대출성공",
+						JOptionPane.INFORMATION_MESSAGE);
+				//실행안됨
 			}
 		});
 		findBookMenu.setForeground(new Color(255, 255, 255));
@@ -90,7 +95,7 @@ public class Main extends JFrame {
 		popularBookLabel.setBounds(22, 63, 123, 40);
 		contentPane.add(popularBookLabel);
 		
-		//인기도서 라벨
+		//인기도서 패널
 		JPanel popularBookPanel = new JPanel();
 		popularBookPanel.setBorder(new LineBorder(new Color(128, 128, 128), 2, true));
 		popularBookPanel.setBackground(SystemColor.menu);
