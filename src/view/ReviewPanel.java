@@ -3,6 +3,9 @@ package view;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
 import java.awt.Font;
+import javax.swing.border.LineBorder;
+import java.awt.Color;
+import java.awt.SystemColor;
 
 public class ReviewPanel extends JPanel {
 
@@ -10,6 +13,8 @@ public class ReviewPanel extends JPanel {
 	 * Create the panel.
 	 */
 	public ReviewPanel() {
+		setBackground(SystemColor.controlLtHighlight);
+		setBorder(new LineBorder(Color.GRAY, 2, true));
 		setLayout(null);
 		
 		//유저 이름 라벨

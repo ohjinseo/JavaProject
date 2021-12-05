@@ -26,6 +26,12 @@ import javax.swing.JRadioButton;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ButtonGroup;
+import java.awt.SystemColor;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 public class UserInfo extends JFrame {
 
@@ -34,37 +40,33 @@ public class UserInfo extends JFrame {
 	private JTable table;
 	private JTextField userPhoneFirstTextField;
 	private JTextField userEmailTextField;
-	private JTextField textField_5;
-	private JTextField textField_6;
-	private JTextField textField_7;
+	private JTextField secondUserPasswordTextField;
+	private JTextField levelTextField;
 	private JTextField userPhoneSecondTextField;
 	private JTextField userPhoneThirdTextField;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
+	
+	//프레임 변수
+	private Main mainFrame;
+	private SearchBook searchBookFrame;
 
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					UserInfo frame = new UserInfo();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	
+	String[] thirtyOne = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31"};
+	String[] twentyNine = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29",};
+	String[] thirty = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30"};
+	
 
 	/**
 	 * Create the frame.
 	 */
 	public UserInfo() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		setBounds(100, 100, 881, 694);
 		contentPane = new JPanel();	//메인 프레임
-		contentPane.setBackground(new Color(245, 245, 245));
+		contentPane.setBackground(SystemColor.menu);
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
@@ -77,6 +79,14 @@ public class UserInfo extends JFrame {
 		
 		//홈아이콘 메뉴
 		JMenu homeIconMenu = new JMenu(" \uD648 ");
+		homeIconMenu.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				mainFrame = new Main();
+				mainFrame.setVisible(true);
+				setVisible(false);
+			}
+		});
 		homeIconMenu.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		homeIconMenu.setForeground(new Color(255, 255, 255));
 		ImageIcon icon5 = new ImageIcon("D:\\\uC0C8 \uD3F4\uB354\\pngegg.png");
@@ -87,6 +97,14 @@ public class UserInfo extends JFrame {
 		
 		//도서 찾기 메뉴
 		JMenu findBookMenu = new JMenu("\uB3C4\uC11C\uCC3E\uAE30");	//메뉴 - 도서찾기
+		findBookMenu.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				searchBookFrame = new SearchBook();
+				searchBookFrame.setVisible(true);
+				setVisible(false);
+			}
+		});
 		findBookMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
@@ -130,7 +148,7 @@ public class UserInfo extends JFrame {
 		userNameTextField = new JTextField();
 		userNameTextField.setEditable(false);
 		userNameTextField.setHorizontalAlignment(SwingConstants.CENTER);
-		userNameTextField.setFont(new Font("\uD55C\uCEF4\uC0B0\uB73B\uB3CB\uC6C0", userNameTextField.getFont().getStyle() | Font.BOLD, userNameTextField.getFont().getSize() + 3));
+		userNameTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 14));
 		userNameTextField.setText("\uC624\uC9C4\uC11C");
 		userNameTextField.setBounds(113, 12, 239, 30);
 		panel.add(userNameTextField);
@@ -145,21 +163,56 @@ public class UserInfo extends JFrame {
 		panel.add(userBirthLabel);
 		
 		// 유저 년도 콤보박스
-		JComboBox comboBox = new JComboBox();
-		comboBox.setModel(new DefaultComboBoxModel(new String[] {"2021", "2020"}));
-		comboBox.setBounds(113, 52, 74, 30);
-		panel.add(comboBox);
+		JComboBox yearComboBox = new JComboBox();
+		yearComboBox.setEnabled(false);
+		yearComboBox.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		
-		//유저 월 콤보박스
-		JComboBox comboBox_1 = new JComboBox();
-		comboBox_1.setModel(new DefaultComboBoxModel(new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}));
-		comboBox_1.setBounds(196, 52, 74, 30);
-		panel.add(comboBox_1);
+		String[] years = new String[122];
+		int k = 0;
+		for(int i = 2021; i >= 1900; i--) {
+			years[k++] = Integer.toString(i);
+		}
+		yearComboBox.setModel(new DefaultComboBoxModel(years));
+		
+		yearComboBox.setBounds(113, 52, 74, 30);
+		panel.add(yearComboBox);
 		
 		//유저 일 콤보박스
-		JComboBox comboBox_1_1 = new JComboBox();
-		comboBox_1_1.setBounds(278, 52, 74, 30);
-		panel.add(comboBox_1_1);
+		JComboBox dayComboBox = new JComboBox();
+		dayComboBox.setEnabled(false);
+		dayComboBox.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		
+		//유저 월 콤보박스
+		JComboBox monthComboBox = new JComboBox();
+		monthComboBox.setEnabled(false);
+		monthComboBox.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		monthComboBox.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getItem().toString() == "1" || e.getItem().toString() == "3" || e.getItem().toString() == "5" ||
+						e.getItem().toString() == "7" || e.getItem().toString() == "8" ||e.getItem().toString() == "10" || e.getItem().toString() == "12") {
+					dayComboBox.setModel(new DefaultComboBoxModel<String>(thirtyOne));
+				}
+				
+				else if(e.getItem().toString() == "2") {
+					dayComboBox.setModel(new DefaultComboBoxModel<String>(twentyNine));
+				}
+				
+				else if(e.getItem().toString() == "4" || e.getItem().toString() == "6" || e.getItem().toString() == "9" || e.getItem().toString() == "11") {
+					dayComboBox.setModel(new DefaultComboBoxModel<String>(thirty));
+				}
+			}
+		});
+		
+		monthComboBox.setModel(new DefaultComboBoxModel(new String[] {"1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"}));
+		monthComboBox.setBounds(196, 52, 74, 30);
+		panel.add(monthComboBox);
+		
+
+		dayComboBox.setModel(new DefaultComboBoxModel<String>(thirtyOne));
+		
+		dayComboBox.setBounds(278, 52, 74, 30);
+	
+		panel.add(dayComboBox);
 		
 		//유저 성별 라벨
 		JLabel userSexLabel = new JLabel("\uC131\uBCC4");
@@ -170,16 +223,23 @@ public class UserInfo extends JFrame {
 		panel.add(userSexLabel);
 		
 		//남자 라디오버튼
-		JRadioButton ManRadioButton = new JRadioButton("\uB0A8\uC790");
-		buttonGroup.add(ManRadioButton);
-		ManRadioButton.setBounds(113, 95, 58, 23);
-		panel.add(ManRadioButton);
+		JRadioButton manRadioButton = new JRadioButton("\uB0A8\uC790");
+		manRadioButton.setEnabled(false);
+		manRadioButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		manRadioButton.setSelected(true);
+		manRadioButton.setBackground(Color.WHITE);
+		buttonGroup.add(manRadioButton);
+		manRadioButton.setBounds(113, 95, 58, 23);
+		panel.add(manRadioButton);
 		
 		//여자 라디오버튼
-		JRadioButton WomanRadioButton = new JRadioButton("\uC5EC\uC790");
-		buttonGroup.add(WomanRadioButton);
-		WomanRadioButton.setBounds(233, 95, 58, 23);
-		panel.add(WomanRadioButton);
+		JRadioButton womanRadioButton = new JRadioButton("\uC5EC\uC790");
+		womanRadioButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		womanRadioButton.setEnabled(false);
+		womanRadioButton.setBackground(Color.WHITE);
+		buttonGroup.add(womanRadioButton);
+		womanRadioButton.setBounds(233, 95, 58, 23);
+		panel.add(womanRadioButton);
 		
 		//유저 전화번호 라벨
 		JLabel userPhoneLabel = new JLabel("\uC804\uD654\uBC88\uD638");
@@ -191,6 +251,7 @@ public class UserInfo extends JFrame {
 		
 		//유저 전화번호 첫번째자리 텍스트필드
 		userPhoneFirstTextField = new JTextField();
+		userPhoneFirstTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		userPhoneFirstTextField.setText("000");
 		userPhoneFirstTextField.setHorizontalAlignment(SwingConstants.CENTER);
 		userPhoneFirstTextField.setEditable(false);
@@ -200,6 +261,7 @@ public class UserInfo extends JFrame {
 		
 		//유저 전화번호 두번째자리 텍스트필드
 		userPhoneSecondTextField = new JTextField();
+		userPhoneSecondTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		userPhoneSecondTextField.setText("0000");
 		userPhoneSecondTextField.setHorizontalAlignment(SwingConstants.CENTER);
 		userPhoneSecondTextField.setEditable(false);
@@ -209,6 +271,7 @@ public class UserInfo extends JFrame {
 		
 		//유저 전화번후 세번째자리 텍스트필드
 		userPhoneThirdTextField = new JTextField();
+		userPhoneThirdTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		userPhoneThirdTextField.setText("0000");
 		userPhoneThirdTextField.setHorizontalAlignment(SwingConstants.CENTER);
 		userPhoneThirdTextField.setEditable(false);
@@ -226,9 +289,10 @@ public class UserInfo extends JFrame {
 		
 		//유저 이메일 텍스트필드
 		userEmailTextField = new JTextField();
+		userEmailTextField.setEditable(false);
+		userEmailTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		userEmailTextField.setText("abj123@gmail.com");
 		userEmailTextField.setHorizontalAlignment(SwingConstants.CENTER);
-		userEmailTextField.setEditable(false);
 		userEmailTextField.setColumns(10);
 		userEmailTextField.setBounds(113, 174, 239, 30);
 		panel.add(userEmailTextField);
@@ -241,14 +305,15 @@ public class UserInfo extends JFrame {
 		userPasswordLabel.setBounds(20, 212, 81, 30);
 		panel.add(userPasswordLabel);
 		
-		//
-		textField_5 = new JTextField();
-		textField_5.setText("*******");
-		textField_5.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_5.setEditable(false);
-		textField_5.setColumns(10);
-		textField_5.setBounds(113, 214, 239, 30);
-		panel.add(textField_5);
+		//비밀번호 텍스트 필드
+		JTextField userPasswordTextField = new JTextField();
+		userPasswordTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		userPasswordTextField.setText("*******");
+		userPasswordTextField.setHorizontalAlignment(SwingConstants.CENTER);
+		userPasswordTextField.setEditable(false);
+		userPasswordTextField.setColumns(10);
+		userPasswordTextField.setBounds(113, 214, 239, 30);
+		panel.add(userPasswordTextField);
 		
 		JLabel userNameLabel_1_5 = new JLabel("\uC911\uBCF5\uD655\uC778");
 		userNameLabel_1_5.setFont(new Font("한컴산뜻돋움", Font.BOLD, 15));
@@ -257,13 +322,15 @@ public class UserInfo extends JFrame {
 		userNameLabel_1_5.setBounds(20, 252, 81, 30);
 		panel.add(userNameLabel_1_5);
 		
-		textField_6 = new JTextField();
-		textField_6.setText("*******");
-		textField_6.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_6.setEditable(false);
-		textField_6.setColumns(10);
-		textField_6.setBounds(113, 254, 239, 30);
-		panel.add(textField_6);
+		//비밀번호 재확인 텍스트 필드
+		secondUserPasswordTextField = new JTextField();
+		secondUserPasswordTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		secondUserPasswordTextField.setText("*******");
+		secondUserPasswordTextField.setHorizontalAlignment(SwingConstants.CENTER);
+		secondUserPasswordTextField.setEditable(false);
+		secondUserPasswordTextField.setColumns(10);
+		secondUserPasswordTextField.setBounds(113, 254, 239, 30);
+		panel.add(secondUserPasswordTextField);
 		
 		JLabel userGradeLabel = new JLabel("\uD68C\uC6D0\uB4F1\uAE09");
 		userGradeLabel.setFont(new Font("한컴산뜻돋움", Font.BOLD, 15));
@@ -272,17 +339,20 @@ public class UserInfo extends JFrame {
 		userGradeLabel.setBounds(20, 291, 81, 30);
 		panel.add(userGradeLabel);
 		
-		textField_7 = new JTextField();
-		textField_7.setText("\uC6B0\uC218\uD68C\uC6D0");
-		textField_7.setHorizontalAlignment(SwingConstants.CENTER);
-		textField_7.setEditable(false);
-		textField_7.setColumns(10);
-		textField_7.setBounds(113, 293, 239, 30);
-		panel.add(textField_7);
+		//등급 텍스트 필드
+		levelTextField = new JTextField();
+		levelTextField.setEditable(false);
+		levelTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		levelTextField.setText("\uC6B0\uC218\uD68C\uC6D0");
+		levelTextField.setHorizontalAlignment(SwingConstants.CENTER);
+		levelTextField.setColumns(10);
+		levelTextField.setBounds(113, 293, 239, 30);
+		panel.add(levelTextField);
 		
-		JButton btnNewButton_1 = new JButton("\uC911\uBCF5 \uD655\uC778");
-		btnNewButton_1.setBounds(369, 130, 91, 32);
-		panel.add(btnNewButton_1);
+		JButton dupleButton = new JButton("\uC911\uBCF5 \uD655\uC778");
+		dupleButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		dupleButton.setBounds(369, 130, 91, 32);
+		panel.add(dupleButton);
 
 		//대출 패널
 		JPanel panel_1 = new JPanel();
@@ -316,9 +386,45 @@ public class UserInfo extends JFrame {
 		));
 		scrollPane.setViewportView(table);
 		
-		JButton btnNewButton = new JButton("\uC218\uC815\uD558\uAE30");
-		btnNewButton.setFont(new Font("\uD55C\uCEF4\uC0B0\uB73B\uB3CB\uC6C0", btnNewButton.getFont().getStyle() | Font.BOLD, btnNewButton.getFont().getSize() + 3));
-		btnNewButton.setBounds(340, 163, 117, 28);
-		panel_1.add(btnNewButton);
+		JButton editButton = new JButton("\uC218\uC815\uD558\uAE30");
+		editButton.addMouseListener(new MouseAdapter() {
+			//수정하기 버튼을 클릭했을 때
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(editButton.getText().equals("수정하기")) {
+					userNameTextField.setEditable(true);
+					yearComboBox.setEnabled(true);
+					monthComboBox.setEnabled(true);
+					dayComboBox.setEnabled(true);
+					manRadioButton.setEnabled(true);
+					womanRadioButton.setEnabled(true);
+					userPhoneFirstTextField.setEditable(true);
+					userPhoneSecondTextField.setEditable(true);
+					userPhoneThirdTextField.setEditable(true);
+					userEmailTextField.setEditable(true);
+					userPasswordTextField.setEditable(true);
+					secondUserPasswordTextField.setEditable(true);
+					editButton.setText("수정완료");
+				}
+				else if(editButton.getText().equals("수정완료")) {
+					userNameTextField.setEditable(false);
+					yearComboBox.setEnabled(false);
+					monthComboBox.setEnabled(false);
+					dayComboBox.setEnabled(false);
+					manRadioButton.setEnabled(false);
+					womanRadioButton.setEnabled(false);
+					userPhoneFirstTextField.setEditable(false);
+					userPhoneSecondTextField.setEditable(false);
+					userPhoneThirdTextField.setEditable(false);
+					userEmailTextField.setEditable(false);
+					userPasswordTextField.setEditable(false);
+					secondUserPasswordTextField.setEditable(false);
+					editButton.setText("수정하기");
+				}
+			}
+		});
+		editButton.setFont(new Font("\uD55C\uCEF4\uC0B0\uB73B\uB3CB\uC6C0", editButton.getFont().getStyle() | Font.BOLD, editButton.getFont().getSize() + 3));
+		editButton.setBounds(340, 163, 117, 28);
+		panel_1.add(editButton);
 	}
 }

@@ -13,6 +13,7 @@ import java.awt.Font;
 import javax.swing.JButton;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.SystemColor;
 
 public class WriteReview extends JFrame {
 
@@ -38,9 +39,9 @@ public class WriteReview extends JFrame {
 	 * Create the frame.
 	 */
 	public WriteReview() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
+		contentPane.setBackground(SystemColor.menu);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
@@ -179,7 +180,7 @@ public class WriteReview extends JFrame {
 
 		// 버튼 패널
 		JPanel panel_1 = new JPanel();
-		panel_1.setBounds(12, 230, 412, 33);
+		panel_1.setBounds(12, 218, 412, 33);
 		contentPane.add(panel_1);
 		panel_1.setLayout(null);
 

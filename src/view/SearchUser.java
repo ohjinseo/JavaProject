@@ -25,6 +25,7 @@ import javax.swing.border.LineBorder;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.DefaultComboBoxModel;
+import java.awt.SystemColor;
 
 public class SearchUser extends JFrame {
 
@@ -32,30 +33,10 @@ public class SearchUser extends JFrame {
 	private JTextField searchTextField;
 	private JTable table;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					SearchUser frame = new SearchUser();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	/**
-	 * Create the frame.
-	 */
 	public SearchUser() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 881, 706);
 		contentPane = new JPanel(); // 메인 프레임
-		contentPane.setBackground(new Color(245, 245, 245));
+		contentPane.setBackground(SystemColor.menu);
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 
@@ -105,7 +86,6 @@ public class SearchUser extends JFrame {
 		JComboBox searchComboBox = new JComboBox();
 		searchComboBox.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 15));
 		searchComboBox.setModel(new DefaultComboBoxModel(new String[] {"\uC804\uCCB4", "\uC774\uB984", "\uC804\uD654\uBC88\uD638", "\uC774\uBA54\uC77C"}));
-		searchComboBox.setEnabled(false);
 		searchComboBox.setBackground(Color.WHITE);
 		searchComboBox.setBounds(0, 0, 129, 38);
 		panel.add(searchComboBox);
@@ -145,14 +125,14 @@ public class SearchUser extends JFrame {
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				for (int i = 0; i < table.getColumnCount(); i++) {
-					UserInfo userinfo = new UserInfo();
-					userinfo.setVisible(true);
-				}
+				UserInfo userinfo = new UserInfo();
+				userinfo.setVisible(true);
 			}
 		});
+		
+		
 		table.setToolTipText("\u3147\u3131\u3139");
-		table.setBackground(new Color(245, 245, 245));
+		table.setBackground(Color.WHITE);
 		scrollPane.setViewportView(table);
 		table.setFont(new Font("\uD55C\uCEF4\uC0B0\uB73B\uB3CB\uC6C0", table.getFont().getStyle(),
 				table.getFont().getSize() + 2));

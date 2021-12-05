@@ -21,6 +21,9 @@ import javax.swing.JTextArea;
 import javax.swing.DropMode;
 import java.awt.Panel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import java.awt.Window.Type;
+import javax.swing.UIManager;
 
 public class BookInfo extends JFrame {
 
@@ -29,27 +32,15 @@ public class BookInfo extends JFrame {
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					BookInfo frame = new BookInfo();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	
 
 	/**
 	 * Create the frame.
 	 */
 	public BookInfo() {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 845, 663);
+		setBounds(100, 100, 848, 681);
 		contentPane = new JPanel();
-		contentPane.setBackground(new Color(245, 245, 245));
+		contentPane.setBackground(SystemColor.menu);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
@@ -121,38 +112,38 @@ public class BookInfo extends JFrame {
 
 		// 책 저자 라벨
 		JLabel bookHeaderLabel_1 = new JLabel("\uC800\uC790 : \uD669\uAE30\uD0DC");
-		bookHeaderLabel_1.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 14));
+		bookHeaderLabel_1.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookHeaderLabel_1.setHorizontalAlignment(SwingConstants.LEFT);
 		bookHeaderLabel_1.setBounds(12, 60, 100, 26);
 		panel_1.add(bookHeaderLabel_1);
 
 		// 책 출판사 라벨
 		JLabel bookHeaderLabel_2 = new JLabel("\uCD9C\uD310\uC0AC : \uC0DD\uB2A5\uCD9C\uD310\uC0AC");
-		bookHeaderLabel_2.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 14));
+		bookHeaderLabel_2.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookHeaderLabel_2.setBounds(131, 60, 193, 26);
 		panel_1.add(bookHeaderLabel_2);
 
 		// 책 관련링크 라벨
 		JLabel bookLinkLabel = new JLabel("\uAD00\uB828\uB9C1\uD06C : www.abc.com");
-		bookLinkLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 20));
+		bookLinkLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookLinkLabel.setBounds(12, 200, 567, 26);
 		panel_1.add(bookLinkLabel);
 
 		// 책 평점 라벨
 		JLabel bookGradeLabel = new JLabel("\uD3C9\uC810 : \u2605\u2605\u2605\u2605\u2606");
-		bookGradeLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 20));
+		bookGradeLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookGradeLabel.setBounds(12, 92, 193, 26);
 		panel_1.add(bookGradeLabel);
 
 		// 책 가격 라벨
 		JLabel bookPriceLabel = new JLabel("\uAC00\uACA9 : 28000\uC6D0");
-		bookPriceLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 20));
+		bookPriceLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookPriceLabel.setBounds(12, 128, 193, 26);
 		panel_1.add(bookPriceLabel);
 
 		// 책 ISBN 라벨
 		JLabel bookISBNLabel = new JLabel("ISBN : 123456789");
-		bookISBNLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 20));
+		bookISBNLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookISBNLabel.setBounds(12, 164, 193, 26);
 		panel_1.add(bookISBNLabel);
 
@@ -173,40 +164,45 @@ public class BookInfo extends JFrame {
 
 		// 책 줄거리 패널
 		JPanel panel_2 = new JPanel();
-		panel_2.setBorder(new LineBorder(new Color(128, 128, 128), 2, true));
 		panel_2.setBackground(new Color(255, 255, 255));
 		panel_2.setBounds(12, 283, 805, 142);
 		contentPane.add(panel_2);
 		panel_2.setLayout(null);
 		
 		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setViewportBorder(new LineBorder(new Color(128, 128, 128), 1, true));
 		scrollPane.setBounds(0, 0, 805, 142);
 		panel_2.add(scrollPane);
 		
 		JTextArea bookDescriptionLabel = new JTextArea();
+		bookDescriptionLabel.setBackground(new Color(255, 255, 255));
+		scrollPane.setViewportView(bookDescriptionLabel);
 		bookDescriptionLabel.setText("\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC");
 		bookDescriptionLabel.setLineWrap(true);
-		bookDescriptionLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 20));
-		scrollPane.setViewportView(bookDescriptionLabel);
+		bookDescriptionLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 
 		// 책 평점 패널
 		JPanel panel_3 = new JPanel();
 		panel_3.setBorder(new LineBorder(new Color(128, 128, 128), 2, true));
 		panel_3.setBackground(new Color(255, 255, 255));
-		panel_3.setBounds(12, 435, 805, 179);
+		panel_3.setBounds(12, 435, 805, 189);
 		contentPane.add(panel_3);
 		panel_3.setLayout(null);
 		ReviewPanel review = new ReviewPanel();
-		review.setSize(781, 55);
-		review.setLocation(12, 10);
+		review.setSize(805, 65);
+		review.setLocation(0, 0);
 		panel_3.add(review);
 		
 		ReviewPanel review_1 = new ReviewPanel();
-		review_1.setBounds(12, 63, 781, 55);
+		review_1.setBounds(0, 63, 805, 65);
 		panel_3.add(review_1);
 		
 		ReviewPanel review_2 = new ReviewPanel();
-		review_2.setBounds(12, 114, 781, 55);
+		review_2.setBounds(0, 124, 805, 65);
 		panel_3.add(review_2);
+		
+		JSeparator separator = new JSeparator();
+		separator.setBounds(12, 63, -31, 2);
+		panel_3.add(separator);
 	}
 }
