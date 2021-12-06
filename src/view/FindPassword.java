@@ -57,6 +57,7 @@ public class FindPassword extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null);
 		
+		//아이디 찾기 패널
 		JPanel panel = new JPanel();
 		panel.setBounds(12, 10, 472, 139);
 		contentPane.add(panel);
@@ -68,12 +69,14 @@ public class FindPassword extends JFrame {
 		panel.add(findPasswordButton);
 		findPasswordButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 15));
 		
+		//이메일 텍스트필드
 		EmailTextField = new JTextField();
 		EmailTextField.setBounds(119, 21, 312, 21);
 		panel.add(EmailTextField);
 		EmailTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		EmailTextField.setColumns(10);
 		
+		//이메일 라벨
 		JLabel userEmailLabel = new JLabel("\uC774\uBA54\uC77C");
 		userEmailLabel.setBounds(23, 23, 50, 15);
 		panel.add(userEmailLabel);
