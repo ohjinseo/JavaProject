@@ -27,6 +27,9 @@ public class Login extends JFrame {
 	
 	//프레임 변수
 	private Main mainFrame;
+	private FindId findIdFrame;
+	private FindPassword findPasswordFrame;
+	private SignUp signUpFrame;
 
 	/**
 	 * Launch the application.
@@ -111,16 +114,40 @@ public class Login extends JFrame {
 		contentPane.add(loginLabel);
 		
 		JButton findIdButton = new JButton("\uC544\uC774\uB514 \uCC3E\uAE30");
+		findIdButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				findIdFrame = new FindId();
+				findIdFrame.setVisible(true);
+				
+			}
+		});
 		findIdButton.setFont(new Font("한컴산뜻돋움", Font.BOLD, 12));
 		findIdButton.setBounds(36, 212, 113, 35);
 		contentPane.add(findIdButton);
 		
 		JButton findPasswordButton = new JButton("\uBE44\uBC00\uBC88\uD638 \uCC3E\uAE30");
+		findPasswordButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				findPasswordFrame = new FindPassword();
+				findPasswordFrame.setVisible(true);
+				
+			}
+		});
 		findPasswordButton.setFont(new Font("한컴산뜻돋움", Font.BOLD, 12));
 		findPasswordButton.setBounds(195, 212, 113, 35);
 		contentPane.add(findPasswordButton);
 		
 		JButton signupButton = new JButton("\uD68C\uC6D0\uAC00\uC785");
+		signupButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				signUpFrame = new SignUp();
+				signUpFrame.setVisible(true);
+				
+			}
+		});
 		signupButton.setFont(new Font("한컴산뜻돋움", Font.BOLD, 12));
 		signupButton.setBounds(357, 212, 113, 35);
 		contentPane.add(signupButton);

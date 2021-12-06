@@ -32,6 +32,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class SignUp extends JFrame {
 
@@ -65,6 +67,12 @@ public class SignUp extends JFrame {
 	 * Create the frame.
 	 */
 	public SignUp() {
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				dispose();
+			}
+		});
 
 		setBounds(100, 100, 732, 605);
 		contentPane = new JPanel(); // 메인 프레임
