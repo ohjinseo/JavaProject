@@ -14,12 +14,19 @@ import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
 import java.awt.Color;
 import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class Login extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField textField;
-	private JTextField textField_1;
+	private JTextField loginTextField;
+	private JTextField passwordTextField;
+	
+	//프레임 변수
+	private Main mainFrame;
 
 	/**
 	 * Launch the application.
@@ -68,19 +75,29 @@ public class Login extends JFrame {
 		passwordLabel.setBounds(12, 60, 80, 36);
 		panel.add(passwordLabel);
 		
-		textField = new JTextField();
-		textField.setBackground(new Color(245, 245, 245));
-		textField.setBounds(102, 17, 267, 28);
-		panel.add(textField);
-		textField.setColumns(10);
+		loginTextField = new JTextField();
+		loginTextField.setBackground(new Color(245, 245, 245));
+		loginTextField.setBounds(102, 17, 267, 28);
+		panel.add(loginTextField);
+		loginTextField.setColumns(10);
 		
-		textField_1 = new JTextField();
-		textField_1.setBackground(new Color(245, 245, 245));
-		textField_1.setColumns(10);
-		textField_1.setBounds(104, 67, 265, 28);
-		panel.add(textField_1);
+		passwordTextField = new JTextField();
+		passwordTextField.setBackground(new Color(245, 245, 245));
+		passwordTextField.setColumns(10);
+		passwordTextField.setBounds(104, 67, 265, 28);
+		panel.add(passwordTextField);
 		
 		JButton loginButton = new JButton("Login");
+		loginButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+					mainFrame = new Main();
+					mainFrame.setVisible(true);
+					setVisible(false);
+				
+			}
+		});
+		
 		loginButton.setFont(new Font("한컴산뜻돋움", Font.BOLD, 16));
 		loginButton.setBounds(378, 17, 85, 79);
 		panel.add(loginButton);
