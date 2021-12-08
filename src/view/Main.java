@@ -38,6 +38,7 @@ public class Main extends JFrame {
 	 * Create the frame.
 	 */
 	public Main() {
+		setTitle("\uB3C4\uC11C \uAD00\uB9AC \uD504\uB85C\uADF8\uB7A8 - \uBA54\uC778");
 		setBounds(100, 100, 881, 694);
 		contentPane = new JPanel();	//메인 프레임
 		contentPane.setBackground(SystemColor.menu);

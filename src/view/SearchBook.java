@@ -55,6 +55,7 @@ public class SearchBook extends JFrame {
 	 * 도서 찾기 메인화면
 	 */
 	public SearchBook() {
+		setTitle("\uB3C4\uC11C \uAD00\uB9AC \uD504\uB85C\uADF8\uB7A8 - \uB3C4\uC11C\uAC80\uC0C9");
 		setBounds(100, 100, 881, 706);
 		contentPane = new JPanel(); // 메인 프레임
 		contentPane.setBackground(SystemColor.menu);
