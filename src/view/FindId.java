@@ -42,6 +42,7 @@ public class FindId extends JFrame {
 	 * Create the frame.
 	 */
 	public FindId() {
+		setTitle("\uB3C4\uC11C \uAD00\uB9AC \uD504\uB85C\uADF8\uB7A8 - \uC544\uC774\uB514 \uCC3E\uAE30");
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {

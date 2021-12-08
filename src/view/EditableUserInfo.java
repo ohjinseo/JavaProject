@@ -32,8 +32,9 @@ import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import javax.swing.JPasswordField;
 
-public class UserInfo extends JFrame {
+public class EditableUserInfo extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField userNameTextField;
@@ -62,8 +63,8 @@ public class UserInfo extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public UserInfo() {
-		setTitle("\uB3C4\uC11C \uAD00\uB9AC \uD504\uB85C\uADF8\uB7A8 - \uC720\uC800\uC815\uBCF4");
+	public EditableUserInfo() {
+		setTitle("\uB3C4\uC11C \uAD00\uB9AC \uD504\uB85C\uADF8\uB7A8 - \uD68C\uC6D0 \uC815\uBCF4");
 		
 		setBounds(100, 100, 881, 694);
 		contentPane = new JPanel();	//메인 프레임
@@ -387,7 +388,7 @@ public class UserInfo extends JFrame {
 		));
 		scrollPane.setViewportView(table);
 		
-		JButton editButton = new JButton("\uC218\uC815\uD558\uAE30");
+		JButton editButton = new JButton("\uD0C8\uD1F4\uC2DC\uD0A4\uAE30");
 		editButton.addMouseListener(new MouseAdapter() {
 			//수정하기 버튼을 클릭했을 때
 			@Override

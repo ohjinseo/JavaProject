@@ -39,6 +39,7 @@ public class WriteReview extends JFrame {
 	 * Create the frame.
 	 */
 	public WriteReview() {
+		setTitle("\uD55C\uC904\uD3C9 \uC791\uC131");
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBackground(SystemColor.menu);

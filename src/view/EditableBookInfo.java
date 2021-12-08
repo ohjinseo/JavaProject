@@ -25,19 +25,18 @@ import javax.swing.JSeparator;
 import java.awt.Window.Type;
 import javax.swing.UIManager;
 
-public class BookInfo extends JFrame {
+public class EditableBookInfo extends JFrame {
 
 	private JPanel contentPane;
 
 	/**
 	 * Launch the application.
 	 */
-	
 
 	/**
 	 * Create the frame.
 	 */
-	public BookInfo() {
+	public EditableBookInfo() {
 		setTitle("\uB3C4\uC11C \uAD00\uB9AC \uD504\uB85C\uADF8\uB7A8 - \uB3C4\uC11C\uC815\uBCF4");
 		setBounds(100, 100, 848, 681);
 		contentPane = new JPanel();
@@ -60,41 +59,29 @@ public class BookInfo extends JFrame {
 		panel.add(bookPictureLabel);
 
 		// 책 빌리기 버튼
-		JButton bookBorrowButton = new JButton("\uB300\uCD9C\uD558\uAE30");
+		JButton bookBorrowButton = new JButton("\uB300\uCD9C\uAC00\uB2A5");
+		bookBorrowButton.setEnabled(false);
 		bookBorrowButton.addMouseListener(new MouseAdapter() { // 클릭이벤트
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (bookBorrowButton.getText() == "대출하기") // 대출하기 버튼 상태일 때
-				{
-					if (true) // 대출 성공 했을 때
-					{
-						JOptionPane.showMessageDialog(null, "해당 도서를 대출하였습니다.\n1000-00-00 까지 반납해 주세요.", "대출성공",
-								JOptionPane.INFORMATION_MESSAGE);
-						bookBorrowButton.setText("반납하기");
-					} else if (false) // 대출 실패 했을 때(대출 가능 도서수 초과)
-						JOptionPane.showMessageDialog(null, "대출 가능한 도서수를 초과하였습니다.\n다른 도서를 반납 후 다시 시도해 주세요.", "대출실패",
-								JOptionPane.WARNING_MESSAGE);
-					else // 남은 경우(대출 실패 했을 떄(연체된 책 존재))
-						JOptionPane.showMessageDialog(null, "연체된 책이 있습니다.\n나중에 다시 시도해 주세요.", "대출실패",
-								JOptionPane.WARNING_MESSAGE);
-				} else // 나머지(반납하기 버튼 상태일 때)
-				{
-					if (true) // 연체가 안 된 경우
-						JOptionPane.showMessageDialog(null, "반납에 성공하였습니다", "반납성공", JOptionPane.INFORMATION_MESSAGE);
-					else // 연체된 경우
-						JOptionPane.showMessageDialog(null, "반납에 성공하였습니다\n회원님의 연체일은 8일입니다.\n해당 기간동안 책을 이용하실 수 없습니다.",
-								"반납성공", JOptionPane.INFORMATION_MESSAGE);
-					WriteReview writereview=new WriteReview();
-					writereview.setVisible(true);
-					bookBorrowButton.setText("대출하기");
-				}
-
 			}
 		});
 		bookBorrowButton.setFont(new Font("\uD55C\uCEF4\uC0B0\uB73B\uB3CB\uC6C0",
 				bookBorrowButton.getFont().getStyle() | Font.BOLD, bookBorrowButton.getFont().getSize() + 3));
-		bookBorrowButton.setBounds(12, 190, 157, 39);
+		bookBorrowButton.setBounds(12, 190, 157, 19);
 		panel.add(bookBorrowButton);
+
+		//책 수정 버튼
+		JButton bookEditButton = new JButton("\uC218\uC815");
+		bookEditButton.setFont(new Font("한컴산뜻돋움", Font.BOLD, 15));
+		bookEditButton.setBounds(12, 210, 77, 19);
+		panel.add(bookEditButton);
+
+		//책 삭제 버튼
+		JButton bookDeleteButton_1_1 = new JButton("\uC0AD\uC81C");
+		bookDeleteButton_1_1.setFont(new Font("한컴산뜻돋움", Font.BOLD, 15));
+		bookDeleteButton_1_1.setBounds(92, 210, 77, 19);
+		panel.add(bookDeleteButton_1_1);
 
 		// 책 정보 패널
 		JPanel panel_1 = new JPanel();
@@ -148,37 +135,23 @@ public class BookInfo extends JFrame {
 		bookISBNLabel.setBounds(12, 164, 193, 26);
 		panel_1.add(bookISBNLabel);
 
-		// 책 즐겨찾기 라벨
-		JLabel bookFavoritesLabel = new JLabel("\u2606");
-		bookFavoritesLabel.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (bookFavoritesLabel.getText() == "☆") // 별 체크가 안된경우
-					bookFavoritesLabel.setText("★"); // 별 체크
-				else // 나머지 경우(별 체크가 된 경우)
-					bookFavoritesLabel.setText("☆"); // 별 체크 해제
-			}
-		});
-		bookFavoritesLabel.setFont(new Font("한컴산뜻돋움", Font.BOLD, 20));
-		bookFavoritesLabel.setBounds(559, 10, 41, 46);
-		panel_1.add(bookFavoritesLabel);
-
 		// 책 줄거리 패널
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(255, 255, 255));
 		panel_2.setBounds(12, 283, 805, 142);
 		contentPane.add(panel_2);
 		panel_2.setLayout(null);
-		
+
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setViewportBorder(new LineBorder(new Color(128, 128, 128), 1, true));
 		scrollPane.setBounds(0, 0, 805, 142);
 		panel_2.add(scrollPane);
-		
+
 		JTextArea bookDescriptionLabel = new JTextArea();
 		bookDescriptionLabel.setBackground(new Color(255, 255, 255));
 		scrollPane.setViewportView(bookDescriptionLabel);
-		bookDescriptionLabel.setText("\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC");
+		bookDescriptionLabel.setText(
+				"\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC");
 		bookDescriptionLabel.setLineWrap(true);
 		bookDescriptionLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 
@@ -193,15 +166,15 @@ public class BookInfo extends JFrame {
 		review.setSize(805, 65);
 		review.setLocation(0, 0);
 		panel_3.add(review);
-		
+
 		ReviewPanel review_1 = new ReviewPanel();
 		review_1.setBounds(0, 63, 805, 65);
 		panel_3.add(review_1);
-		
+
 		ReviewPanel review_2 = new ReviewPanel();
 		review_2.setBounds(0, 124, 805, 65);
 		panel_3.add(review_2);
-		
+
 		JSeparator separator = new JSeparator();
 		separator.setBounds(12, 63, -31, 2);
 		panel_3.add(separator);
