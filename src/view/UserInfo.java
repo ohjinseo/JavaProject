@@ -83,7 +83,8 @@ public class UserInfo extends JFrame {
 		homeIconMenu.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				mainFrame = new Main();
+				String user_phone="";
+				mainFrame = new Main(user_phone);
 				mainFrame.setVisible(true);
 				setVisible(false);
 			}
