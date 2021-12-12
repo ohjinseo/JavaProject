@@ -8,7 +8,7 @@ import java.sql.Statement;
 import java.sql.PreparedStatement;
 
 public class dbConnector {
-	Connection conn ;
+	public Connection conn ;
 	Statement stmt ;
 	PreparedStatement ps;
 	public dbConnector() {	//생성자
@@ -16,9 +16,10 @@ public class dbConnector {
 		try { // DB 접근
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			conn = DriverManager.getConnection("jdbc:mysql://jdb.deu.monster:60001/j20183026",
-					"20183026", /*여기다 비번*/);
+					"20183026", /* 비번입력 */);
 			System.out.println("DB 연결 완료");
 			stmt = conn.createStatement();
+			
 		} catch (ClassNotFoundException e) {
 			System.out.println("JDBC 드라이버 로드 에러");
 		} catch (SQLException e) {

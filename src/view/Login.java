@@ -55,7 +55,7 @@ public class Login extends JFrame {
 	 * Create the frame.
 	 */
 	public Login() {
-
+	
 		setResizable(false); // 창 크기 고정
 
 		
@@ -106,9 +106,10 @@ public class Login extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				int flag = 0; // 0이면 로그인 수락, 1이면 로그인 거절
 				String user_phone ="";
+				Boolean manager = false;
 				try { // DB 접근
 
-					ResultSet rs = dbConn.executeQuery("select USER_PW, USER_MAIL, USER_PHONE from USER"); // USER 테이블에서 MAIL과 PW 검색
+					ResultSet rs = dbConn.executeQuery("select USER_PW, USER_MAIL, USER_PHONE, USER_MANAGER from USER"); // USER 테이블에서 MAIL과 PW 검색
 					// 쿼리문 결과
 					while (rs.next()) {
 						if (loginTextField.getText().equals(rs.getString("USER_MAIL"))) // 아이디 창에 입력한 메일과 일치하는 메일이 DB에
@@ -117,6 +118,7 @@ public class Login extends JFrame {
 																								// 패스워드가 일치하면
 							{
 								user_phone=rs.getString("USER_PHONE");
+								manager = rs.getBoolean("USER_MANAGER");
 								flag = 1; // 로그인 수락
 								break;
 							}
@@ -126,7 +128,7 @@ public class Login extends JFrame {
 				}
 				if (flag == 1) { // 로그인이 수락 되었으면
 					System.out.println("로그인 성공");
-					mainFrame = new Main(user_phone); // 메인 프레임 객체 생성
+					mainFrame = new Main(user_phone,manager); // 메인 프레임 객체 생성
 					mainFrame.setVisible(true); // 메인 프레임을 호출
 					setVisible(false); // 로그인 프레임 닫음
 				} else {

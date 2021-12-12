@@ -20,6 +20,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -34,7 +36,8 @@ import java.awt.*;
 
 public class Main extends JFrame {
 	public dbConnector dbConn = new dbConnector();
-	public String user_phone="";
+	public String user_phone = ""; // 유저 PK 정보를 저장할 변수
+	public Boolean manager = false; // 유저가 관리자인지 확인할 변수
 	private JPanel contentPane;
 	BookInfo bookInfoFrame;
 	SearchUser searchUserFrame;
@@ -48,8 +51,9 @@ public class Main extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public Main(String user_phone) {
-		this.user_phone = user_phone;	//로그인한 유저의 PK
+	public Main(String user_phone, Boolean manager) {
+		this.user_phone = user_phone; // 로그인한 유저의 PK
+		this.manager = manager;
 		setTitle("\uB3C4\uC11C \uAD00\uB9AC \uD504\uB85C\uADF8\uB7A8 - \uBA54\uC778");
 		setBounds(100, 100, 881, 694);
 		contentPane = new JPanel(); // 메인 프레임
@@ -57,8 +61,8 @@ public class Main extends JFrame {
 		setContentPane(contentPane);
 		contentPane.setLayout(null); // 메인 프레임 레이아웃 null로 설정
 		setResizable(false); // 창 크기 고정
-		setLocationRelativeTo(null);	//중앙에 출력
-		
+		setLocationRelativeTo(null); // 중앙에 출력
+
 		// 메뉴바
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setBorderPainted(false);
@@ -86,7 +90,7 @@ public class Main extends JFrame {
 		findBookMenu.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				searchBookFrame = new SearchBook();
+				searchBookFrame = new SearchBook(user_phone, manager);
 				searchBookFrame.setVisible(true);
 				setVisible(false);
 
@@ -102,7 +106,8 @@ public class Main extends JFrame {
 		userInfoMenu.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				userInfoFrame = new UserInfo();
+				userInfoFrame = new UserInfo(user_phone, manager);
+				userInfoFrame.setLocationRelativeTo(null); // 중앙에 출력
 				userInfoFrame.setVisible(true);
 				setVisible(false);
 			}
@@ -111,6 +116,54 @@ public class Main extends JFrame {
 		userInfoMenu.setBackground(new Color(230, 230, 250));
 		userInfoMenu.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		menuBar.add(userInfoMenu);
+
+		// 관리자만 보이는 메뉴
+		if (manager) {
+			JMenu search_user_menu = new JMenu("회원검색");
+			search_user_menu.addMouseListener(new MouseAdapter() { // 마우스 클릭 이벤트 발생시 호출
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					SearchUser search_user_frame = new SearchUser(user_phone, manager); // 유저검색창 호출
+					search_user_frame.setLocationRelativeTo(null); // 중앙에 출력
+					search_user_frame.setResizable(false); // 창 크기 고정
+					search_user_frame.setVisible(true);
+					setVisible(false);
+					// 유저검색 창에서 창을 닫으면 호출되는 메소드
+					search_user_frame.addWindowListener(new WindowAdapter() {
+						@Override
+						public void windowClosing(WindowEvent e) {
+							e.getWindow().dispose();
+						}
+					});
+				}
+			});
+			search_user_menu.setForeground(new Color(255, 255, 255));
+			search_user_menu.setBackground(new Color(230, 230, 250));
+			search_user_menu.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
+			menuBar.add(search_user_menu);
+
+			JMenu add_book_menu = new JMenu("도서추가");
+			add_book_menu.addMouseListener(new MouseAdapter() { // 마우스 클릭 이벤트 발생시 호출
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					AddBook add_book_frame = new AddBook(user_phone, manager); // 도서추가창 호출
+					add_book_frame.setLocationRelativeTo(null); // 중앙에 출력
+					add_book_frame.setResizable(false); // 창 크기 고정
+					add_book_frame.setVisible(true);
+					// 도서추가 창에서 창을 닫으면 호출되는 메소드
+					add_book_frame.addWindowListener(new WindowAdapter() {
+						@Override
+						public void windowClosing(WindowEvent e) {
+							e.getWindow().dispose();
+						}
+					});
+				}
+			});
+			add_book_menu.setForeground(new Color(255, 255, 255));
+			add_book_menu.setBackground(new Color(230, 230, 250));
+			add_book_menu.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
+			menuBar.add(add_book_menu);
+		}
 
 		// 인기도서 라벨
 		JLabel popularBookLabel = new JLabel("\uC778\uAE30\uB3C4\uC11C");
@@ -125,7 +178,7 @@ public class Main extends JFrame {
 		popularBookPanel.setBackground(Color.WHITE);
 		popularBookPanel.setBounds(22, 101, 820, 125);
 		popularBookPanel.setLayout(null);
-		
+
 		JLabel[] popularBookLabel_array = new JLabel[6];
 		// 패널에 출력할 책 이미지를 담을 Label 6개 생성
 		JLabel popular_img1 = new JLabel("popular_img1");
@@ -164,7 +217,7 @@ public class Main extends JFrame {
 		newlyBookLabel.setFont(new Font("한컴산뜻돋움", Font.BOLD, 20));
 		newlyBookLabel.setBounds(22, 260, 123, 40);
 		contentPane.add(newlyBookLabel);
-		
+
 		// 신간도서 패널
 		JPanel newlyBookPanel = new JPanel();
 		newlyBookPanel.setBackground(Color.WHITE);
@@ -172,7 +225,7 @@ public class Main extends JFrame {
 		newlyBookPanel.setBorder(new LineBorder(new Color(128, 128, 128), 2, true));
 		newlyBookPanel.setBounds(22, 298, 820, 125);
 		newlyBookPanel.setLayout(null);
-		
+
 		JLabel[] newlyBookLabel_array = new JLabel[6];
 		// 패널에 출력할 책 이미지를 담을 Label 6개 생성
 		JLabel newly_img1 = new JLabel("newly_img1");
@@ -219,28 +272,28 @@ public class Main extends JFrame {
 		contentPane.add(favoriteBookPanel);
 
 		try { // DB 접근
-			ResultSet rs = dbConn.executeQuery("SELECT BOOK_IMAGE FROM BOOK WHERE BOOK_PRE = TRUE\r\n"
-					+ "order by BOOK_GRADE DESC;"); // 인기순으로 정렬
-			
-			append_img(rs, popularBookLabel_array);	//인기순으로 상위 6개의 이미지를 인기순 패널의 popularBookLabel에 삽입
-			
-			contentPane.add(popularBookPanel);	//컨텐트팬에 인기순 패널 부착
-			
-			rs = dbConn.executeQuery("SELECT BOOK_IMAGE FROM BOOK WHERE BOOK_PRE = TRUE\r\n"
-					+ "order by BOOK_APPEND_DATE DESC;"); // 최신순으로 정렬
-			
-			append_img(rs, newlyBookLabel_array);	//인기순으로 상위 6개의 이미지를 인기순 패널의 popularBookLabel에 삽입
-			
+			ResultSet rs = dbConn.executeQuery(
+					"SELECT BOOK_IMAGE FROM BOOK WHERE BOOK_PRE = TRUE\r\n" + "order by BOOK_GRADE DESC;"); // 인기순으로 정렬
+
+			append_img(rs, popularBookLabel_array); // 인기순으로 상위 6개의 이미지를 인기순 패널의 popularBookLabel에 삽입
+
+			contentPane.add(popularBookPanel); // 컨텐트팬에 인기순 패널 부착
+
+			rs = dbConn.executeQuery(
+					"SELECT BOOK_IMAGE FROM BOOK WHERE BOOK_PRE = TRUE\r\n" + "order by BOOK_APPEND_DATE DESC;"); // 최신순으로
+																													// 정렬
+
+			append_img(rs, newlyBookLabel_array); // 인기순으로 상위 6개의 이미지를 인기순 패널의 popularBookLabel에 삽입
+
 			contentPane.add(newlyBookPanel);
 
 		} catch (SQLException e2) {
 			System.out.println("메인화면에서 SQL 실행 에러");
 		}
 
-
 	}
-	
-	//ResultSet과 JLabel을 받아 JLabel에 읽은 이미지를 저장하는 함수
+
+	// ResultSet과 JLabel을 받아 JLabel에 읽은 이미지를 저장하는 함수
 	public void append_img(ResultSet rs, JLabel[] array) throws SQLException {
 		int i = 0;
 		while (rs.next()) {
