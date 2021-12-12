@@ -84,8 +84,7 @@ public class EditableUserInfo extends JFrame {
 		homeIconMenu.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				String user_phone="";
-				mainFrame = new Main(user_phone);
+				mainFrame = new Main();
 				mainFrame.setVisible(true);
 				setVisible(false);
 			}
