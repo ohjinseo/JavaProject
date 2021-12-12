@@ -47,6 +47,7 @@ public class SearchUser extends JFrame {
 	}
 
 	public SearchUser() {
+		setTitle("\uB3C4\uC11C \uAD00\uB9AC \uD504\uB85C\uADF8\uB7A8 - \uD68C\uC6D0\uAC80\uC0C9");
 		setBounds(100, 100, 881, 706);
 		contentPane = new JPanel(); // 메인 프레임
 		contentPane.setBackground(SystemColor.menu);
