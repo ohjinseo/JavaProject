@@ -32,6 +32,19 @@ public class SearchUser extends JFrame {
 	private JPanel contentPane;
 	private JTextField searchTextField;
 	private JTable table;
+	
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					SearchUser frame = new SearchUser();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
 
 	public SearchUser() {
 		setBounds(100, 100, 881, 706);
