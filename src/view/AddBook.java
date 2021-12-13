@@ -69,7 +69,7 @@ public class AddBook extends JFrame {
 		this.manager = manager;
 		
 		setTitle("\uB3C4\uC11C \uAD00\uB9AC \uD504\uB85C\uADF8\uB7A8 - \uB3C4\uC11C\uCD94\uAC00");
-		setBounds(100, 100, 848, 681);
+		setBounds(100, 100, 848, 622);
 		contentPane = new JPanel();
 		contentPane.setBackground(SystemColor.menu);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -79,7 +79,7 @@ public class AddBook extends JFrame {
 		JPanel panel = new JPanel();
 		panel.setBorder(new LineBorder(new Color(128, 128, 128), 2, true));
 		panel.setBackground(new Color(255, 255, 255));
-		panel.setBounds(12, 31, 181, 239);
+		panel.setBounds(12, 31, 181, 252);
 		contentPane.add(panel);
 		panel.setLayout(null);
 
@@ -106,31 +106,34 @@ public class AddBook extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 					int ret = book_img.showOpenDialog(null);	//파일 찾는 창을 띄우줌
-					String filePath = book_img.getSelectedFile().getPath();	//파일 경로를 filePath에 저장
-					
-					JOptionPane.showMessageDialog(null, filePath,"당신이 선택한 파일은",JOptionPane.NO_OPTION);	//선택한 파일경로를 메시지 창으로 띄움
-					book_img_path.setText(filePath);
-					try { // DB 접근
-						//책 이미지
-						File tmpFile = new File(book_img_path.getText());
-
-						Image img = ImageIO.read(tmpFile); // 읽어온 이미지를 img에 저장
-						Image resize_img = img.getScaledInstance(170, 140, Image.SCALE_SMOOTH); // 이미지 크기 170x140 로 크기 조절하여
-																								// resize_img에 저장
-						ImageIcon icon = new ImageIcon(resize_img); // 조절한 크기의 이미지를 icon에 저장
-						bookPictureLabel.setIcon(icon); // 책 사진 레이블에 이미지 부착
-						bookPictureLabel.setBorder(new LineBorder(Color.black, 1, false)); // 레이블 테두리 검은색으로 그려줌
+					if(ret == 0) { //파일을 선택했다면
 						
-					}catch(FileNotFoundException e1) {
-						System.out.println("도서추가 화면에서 파일 찾기 에러");
-					}catch (IOException e1) {
-						System.out.println("도서추가 화면에서 읽어온 파일 출력 에러");
+						String filePath = book_img.getSelectedFile().getPath();	//파일 경로를 filePath에 저장
+						
+						JOptionPane.showMessageDialog(null, filePath,"당신이 선택한 파일은",JOptionPane.NO_OPTION);	//선택한 파일경로를 메시지 창으로 띄움
+						book_img_path.setText(filePath);
+						try { // DB 접근
+							//책 이미지
+							File tmpFile = new File(book_img_path.getText());
+	
+							Image img = ImageIO.read(tmpFile); // 읽어온 이미지를 img에 저장
+							Image resize_img = img.getScaledInstance(170, 140, Image.SCALE_SMOOTH); // 이미지 크기 170x140 로 크기 조절하여
+																									// resize_img에 저장
+							ImageIcon icon = new ImageIcon(resize_img); // 조절한 크기의 이미지를 icon에 저장
+							bookPictureLabel.setIcon(icon); // 책 사진 레이블에 이미지 부착
+							bookPictureLabel.setBorder(new LineBorder(Color.black, 1, false)); // 레이블 테두리 검은색으로 그려줌
+							
+						}catch(FileNotFoundException e1) {
+							System.out.println("도서추가 화면에서 파일 찾기 에러");
+						}catch (IOException e1) {
+							System.out.println("도서추가 화면에서 읽어온 파일 출력 에러");
+						}
 					}
 			}
 		});
 		bookImageFindButton.setFont(new Font("\uD55C\uCEF4\uC0B0\uB73B\uB3CB\uC6C0",
 				bookImageFindButton.getFont().getStyle() | Font.BOLD, bookImageFindButton.getFont().getSize() + 3));
-		bookImageFindButton.setBounds(12, 190, 157, 39);
+		bookImageFindButton.setBounds(12, 203, 157, 39);
 		panel.add(bookImageFindButton);
 		
 
@@ -138,19 +141,20 @@ public class AddBook extends JFrame {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new LineBorder(new Color(128, 128, 128), 2, true));
 		panel_1.setBackground(new Color(255, 255, 255));
-		panel_1.setBounds(205, 31, 612, 239);
+		panel_1.setBounds(205, 31, 612, 252);
 		contentPane.add(panel_1);
 		panel_1.setLayout(null);
 		
 		//책 이릅 라벨
 		JLabel bookNameLabel = new JLabel("제목 : ");
+		bookNameLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookNameLabel.setBounds(12, 10, 46, 46);
 		panel_1.add(bookNameLabel);
 
 		// 책 이름 텍스트필드
 		bookNameTextField = new JTextField();
 		bookNameTextField.setFont(new Font("함초롬돋움", Font.BOLD, 22));
-		bookNameTextField.setBounds(54, 10, 525, 46);
+		bookNameTextField.setBounds(92, 20, 407, 26);
 		panel_1.add(bookNameTextField);
 		bookNameTextField.setColumns(10);
 
@@ -165,71 +169,71 @@ public class AddBook extends JFrame {
 		bookHeaderTextField_1 = new JTextField();
 		bookHeaderTextField_1.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookHeaderTextField_1.setColumns(10);
-		bookHeaderTextField_1.setBounds(54, 60, 237, 26);
+		bookHeaderTextField_1.setBounds(92, 60, 157, 26);
 		panel_1.add(bookHeaderTextField_1);
 
 		// 책 출판사 라벨
 		JLabel bookHeaderLabel_2 = new JLabel("\uCD9C\uD310\uC0AC : ");
 		bookHeaderLabel_2.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
-		bookHeaderLabel_2.setBounds(303, 60, 60, 26);
+		bookHeaderLabel_2.setBounds(270, 60, 60, 26);
 		panel_1.add(bookHeaderLabel_2);
 
 		// 책 출판사 텍스트필드
 		bookHeaderTextField_2 = new JTextField();
 		bookHeaderTextField_2.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookHeaderTextField_2.setColumns(10);
-		bookHeaderTextField_2.setBounds(362, 60, 217, 26);
+		bookHeaderTextField_2.setBounds(342, 60, 157, 26);
 		panel_1.add(bookHeaderTextField_2);
 
 		// 책 관련링크 라벨
 		JLabel bookLinkLabel = new JLabel("\uAD00\uB828\uB9C1\uD06C : ");
 		bookLinkLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
-		bookLinkLabel.setBounds(12, 171, 83, 26);
+		bookLinkLabel.setBounds(12, 203, 83, 26);
 		panel_1.add(bookLinkLabel);
 
 		// 책 관련링크 텍스트필드
 		bookLinkTextField = new JTextField();
 		bookLinkTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookLinkTextField.setColumns(10);
-		bookLinkTextField.setBounds(91, 171, 497, 26);
+		bookLinkTextField.setBounds(92, 203, 407, 26);
 		panel_1.add(bookLinkTextField);
 
 		// 책 가격 라벨
 		JLabel bookPriceLabel = new JLabel("\uAC00\uACA9 : ");
 		bookPriceLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
-		bookPriceLabel.setBounds(12, 99, 46, 26);
+		bookPriceLabel.setBounds(12, 107, 46, 26);
 		panel_1.add(bookPriceLabel);
 
 		// 책 가격 텍스트필드
 		bookPriceTextField = new JTextField();
 		bookPriceTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookPriceTextField.setColumns(10);
-		bookPriceTextField.setBounds(54, 99, 525, 26);
+		bookPriceTextField.setBounds(92, 107, 407, 26);
 		panel_1.add(bookPriceTextField);
 
 		// 책 ISBN 라벨
 		JLabel bookISBNLabel = new JLabel("ISBN : ");
 		bookISBNLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
-		bookISBNLabel.setBounds(12, 135, 58, 26);
+		bookISBNLabel.setBounds(12, 154, 58, 26);
 		panel_1.add(bookISBNLabel);
 
 		// 책 ISBN 텍스트필드
 		bookISBNTextField = new JTextField();
 		bookISBNTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookISBNTextField.setColumns(10);
-		bookISBNTextField.setBounds(64, 135, 407, 26);
+		bookISBNTextField.setBounds(92, 154, 407, 26);
 		panel_1.add(bookISBNTextField);
 
 		// 책 줄거리 패널
 		JPanel panel_2 = new JPanel();
 		panel_2.setBackground(new Color(255, 255, 255));
-		panel_2.setBounds(12, 283, 805, 142);
+		panel_2.setBounds(12, 310, 805, 177);
 		contentPane.add(panel_2);
 		panel_2.setLayout(null);
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setViewportBorder(new LineBorder(new Color(128, 128, 128), 1, true));
-		scrollPane.setBounds(0, 0, 805, 142);
+		scrollPane.setBounds(0, 0, 805, 177);
 		panel_2.add(scrollPane);
 
 		// 책 줄거리 텍스트필드
@@ -240,7 +244,7 @@ public class AddBook extends JFrame {
 		// 책 추가 버튼
 		JButton bookAddButton = new JButton("\uB3C4\uC11C \uCD94\uAC00");
 		bookAddButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 15));
-		bookAddButton.setBounds(378, 508, 132, 48);
+		bookAddButton.setBounds(348, 511, 132, 48);
 		//책 추가 버튼을 누르면 호출되는 메소드 연결
 		bookAddButton.addActionListener(new ActionListener() {
 			@Override
@@ -254,10 +258,10 @@ public class AddBook extends JFrame {
 							+ "BOOK_PRICE,\r\n"
 							+ "BOOK_DESCRIPTION,\r\n"
 							+ "BOOK_LINK,\r\n"
-							+ "BOOK_IMAGE\r\n"
+							+ "BOOK_IMAGE,\r\n"
 							+ "BOOK_APPEND_DATE\r\n"
 							+ ")values(\r\n"
-							+ "?, ?, ?, ?, ?, ?, ?,?, date_format(now(),'%Y-%m-%d'));";
+							+ "?, ?, ?, ?, ?, ?, ?, ?, date_format(now(),'%Y-%m-%d'));";
 					
 				try { // DB 접근
 					PreparedStatement ps = dbConn.conn.prepareStatement(sql);
@@ -266,14 +270,14 @@ public class AddBook extends JFrame {
 					ps.setString(2, bookNameTextField.getText());			//책 제목
 					ps.setString(3, bookHeaderTextField_1.getText());		//책 저자
 					ps.setString(4, bookHeaderTextField_2.getText());		//책 출판사
-					ps.setInt(5, Integer.parseInt(bookPriceTextField.getText()));	//책 가격
+					ps.setInt(5, Integer.parseInt(bookPriceTextField.getText()));	//책 가격	(숫자만 가능)
 					ps.setString(6, bookDescriptionTextField.getText());	//책 줄거리
 					ps.setString(7, bookLinkTextField.getText());			//책 관련링크
 					
 					//책 이미지
-					File tmpFile = new File(book_img_path.getText());
-					FileInputStream input = new FileInputStream(tmpFile);
-					ps.setBinaryStream(8, input, (int)tmpFile.length());
+					FileInputStream fin = new FileInputStream(book_img_path.getText());
+					ps.setBinaryStream(8, fin, fin.available());
+					
 					
 					int count = ps.executeUpdate();
 					if(count==0) {	//도서 추가 성공시
@@ -283,9 +287,13 @@ public class AddBook extends JFrame {
 						JOptionPane.showMessageDialog(null,"ISBN : "+bookISBNTextField.getText()+"이(는) 등록에 성공하였습니다.", "신규도서등록 성공", JOptionPane.NO_OPTION);
 					}
 				} catch (SQLException e1) {
+					e1.printStackTrace();	//에러 추적
 					System.out.println("도서추가 화면에서 SQL 실행 에러");
 				}catch(FileNotFoundException e1) {
+					e1.printStackTrace();
 					System.out.println("도서추가 화면에서 파일 찾기 에러");
+				} catch (IOException e1) {
+					e1.printStackTrace();
 				}
 				dispose();	//추가 후 창 닫기
 			}
