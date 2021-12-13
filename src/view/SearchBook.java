@@ -51,6 +51,7 @@ public class SearchBook extends JFrame {
 	private JPanel contentPane;
 	private JTextField searchTextField;
 	private JTable table;
+	JComboBox searchComboBox;
 	private final ButtonGroup buttonGroup_1 = new ButtonGroup();
 	private final ButtonGroup buttonGroup_2 = new ButtonGroup();
 
@@ -174,7 +175,7 @@ public class SearchBook extends JFrame {
 		panel.setLayout(null);
 
 		// 검색 항목 콤보박스
-		JComboBox searchComboBox = new JComboBox();
+		searchComboBox = new JComboBox();
 		searchComboBox.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 14));
 		searchComboBox.setModel(new DefaultComboBoxModel(
 				new String[] { "\uC804\uCCB4", "\uC81C\uBAA9", "\uC800\uC790", "\uCD9C\uD310\uC0AC" }));
@@ -184,6 +185,12 @@ public class SearchBook extends JFrame {
 
 		// 검색 입력 영역 텍스트필드
 		searchTextField = new JTextField();
+		searchTextField.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//검색창 입력 후 엔터 입력시 작동되는 리스너
+				search_event();
+			}
+		});
 		searchTextField.setBounds(129, 0, 569, 38);
 		panel.add(searchTextField);
 		searchTextField.setColumns(10);
@@ -194,35 +201,8 @@ public class SearchBook extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				// 검색 버튼 눌렀을때 작동되는 리스너
-				try { // DB 접근
-					String search_how = "전체"; // 검색 조건이 들어갈 search_how (제목, 저자..)
-					ResultSet rs;
-					switch (searchComboBox.getSelectedItem().toString()) {
-					case "제목": // 검색조건이 "제목"일 때
-						search_how = "TITLE";
-						break;
-					case "저자": // 검색조건이 "저자"일 때
-						search_how = "AUTHOR";
-						break;
-					case "출판사": // 검색조건이 "출판사"일 때
-						search_how = "PUB";
-						break;
-					case "전체": // 검색조건이 "전체"일 때
-						search_how = "TITLE LIKE '" + searchTextField.getText() + "%' OR BOOK_AUTHOR LIKE '"
-								+ searchTextField.getText() + "%' OR BOOK_PUB";
-						break;
-					}
-					rs = dbConn.executeQuery("SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN\r\n"
-							+ "FROM BOOK\r\n" + "WHERE (BOOK_" + search_how + " LIKE '" + searchTextField.getText()
-							+ "%')AND BOOK_PRE = TRUE;"); // DB에서 검생창에 입력된 값으로 책 정보 검색
-
-					if (rs != null) // 검색결과가 있으면
-						set_table(rs); // 테이블 재구성
-					else // 없으면
-						System.out.println("검색결과가 없습니다.");
-				} catch (SQLException e2) {
-					System.out.println("SQL 실행 에러");
-				}
+			
+				search_event();
 			}
 		});
 		searchButton.setFont(new Font("함초롬돋움", Font.BOLD, 14));
@@ -448,6 +428,40 @@ public class SearchBook extends JFrame {
 		borrowingNewRadioButton.setBounds(12, 429, 113, 23);
 		panel_2.add(borrowingNewRadioButton);
 
+	}
+	
+	//검색 결과 도출하는 이벤트 함수
+	public void search_event() {
+		
+		try { // DB 접근
+			String search_how = "전체"; // 검색 조건이 들어갈 search_how (제목, 저자..)
+			ResultSet rs;
+			switch (searchComboBox.getSelectedItem().toString()) {
+			case "제목": // 검색조건이 "제목"일 때
+				search_how = "TITLE";
+				break;
+			case "저자": // 검색조건이 "저자"일 때
+				search_how = "AUTHOR";
+				break;
+			case "출판사": // 검색조건이 "출판사"일 때
+				search_how = "PUB";
+				break;
+			case "전체": // 검색조건이 "전체"일 때
+				search_how = "TITLE LIKE '" + searchTextField.getText() + "%' OR BOOK_AUTHOR LIKE '"
+						+ searchTextField.getText() + "%' OR BOOK_PUB";
+				break;
+			}
+			rs = dbConn.executeQuery("SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN\r\n"
+					+ "FROM BOOK\r\n" + "WHERE (BOOK_" + search_how + " LIKE '" + searchTextField.getText()
+					+ "%')AND BOOK_PRE = TRUE;"); // DB에서 검생창에 입력된 값으로 책 정보 검색
+
+			if (rs != null) // 검색결과가 있으면
+				set_table(rs); // 테이블 재구성
+			else // 없으면
+				System.out.println("검색결과가 없습니다.");
+		} catch (SQLException e2) {
+			System.out.println("SQL 실행 에러");
+		}
 	}
 
 	// ResultSet을 받아 테이블 재구성하는 함수

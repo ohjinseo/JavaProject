@@ -22,6 +22,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,6 +31,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import javax.swing.event.MenuListener;
+
+import com.mysql.cj.jdbc.Blob;
+
 import javax.swing.event.MenuEvent;
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -52,6 +56,7 @@ public class Main extends JFrame {
 	 * Create the frame.
 	 */
 	public Main(String user_phone, Boolean manager) {
+
 		this.user_phone = user_phone; // 로그인한 유저의 PK
 		this.manager = manager;
 		setTitle("\uB3C4\uC11C \uAD00\uB9AC \uD504\uB85C\uADF8\uB7A8 - \uBA54\uC778");
@@ -272,13 +277,14 @@ public class Main extends JFrame {
 		contentPane.add(favoriteBookPanel);
 
 		try { // DB 접근
-			ResultSet rs = dbConn.executeQuery(
+			ResultSet rs;
+			rs = dbConn.executeQuery(
 					"SELECT BOOK_IMAGE FROM BOOK WHERE BOOK_PRE = TRUE\r\n" + "order by BOOK_GRADE DESC;"); // 인기순으로 정렬
-
+			
 			append_img(rs, popularBookLabel_array); // 인기순으로 상위 6개의 이미지를 인기순 패널의 popularBookLabel에 삽입
 
 			contentPane.add(popularBookPanel); // 컨텐트팬에 인기순 패널 부착
-
+			System.out.println("속도확인1");
 			rs = dbConn.executeQuery(
 					"SELECT BOOK_IMAGE FROM BOOK WHERE BOOK_PRE = TRUE\r\n" + "order by BOOK_APPEND_DATE DESC;"); // 최신순으로
 																													// 정렬
@@ -286,6 +292,7 @@ public class Main extends JFrame {
 			append_img(rs, newlyBookLabel_array); // 인기순으로 상위 6개의 이미지를 인기순 패널의 popularBookLabel에 삽입
 
 			contentPane.add(newlyBookPanel);
+			
 
 		} catch (SQLException e2) {
 			System.out.println("메인화면에서 SQL 실행 에러");
@@ -299,7 +306,7 @@ public class Main extends JFrame {
 		while (rs.next()) {
 			InputStream inputStream = rs.getBinaryStream("BOOK_IMAGE"); // 이미지를 읽어옴
 			try {
-				Image img = ImageIO.read(inputStream); // 읽어온 이미지를 img에 저장
+				BufferedImage img = ImageIO.read(inputStream); // 읽어온 이미지를 img에 저장
 				Image resize_img = img.getScaledInstance(105, 105, Image.SCALE_SMOOTH); // 이미지 크기 105x105로 크기 조절하여
 																						// resize_img에 저장
 				ImageIcon icon = new ImageIcon(resize_img); // 조절한 크기의 이미지를 icon에 저장
