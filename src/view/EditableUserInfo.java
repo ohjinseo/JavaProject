@@ -87,7 +87,7 @@ public class EditableUserInfo extends JFrame {
 		JLabel userPictureLabel = new JLabel("\uC720\uC800 \uC0AC\uC9C4");
 		userPictureLabel.setBackground(new Color(255, 250, 250));
 		userPictureLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		userPictureLabel.setBounds(22, 71, 186, 225);
+		userPictureLabel.setBounds(22, 57, 186, 225);
 		contentPane.add(userPictureLabel);
 
 		// 유저 정보 패널
@@ -318,7 +318,7 @@ public class EditableUserInfo extends JFrame {
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new LineBorder(new Color(128, 128, 128), 2));
 		panel_1.setBackground(new Color(255, 255, 255));
-		panel_1.setBounds(22, 444, 817, 201);
+		panel_1.setBounds(22, 431, 817, 201);
 		contentPane.add(panel_1);
 		panel_1.setLayout(null);
 
@@ -427,16 +427,26 @@ public class EditableUserInfo extends JFrame {
 					levelTextField.setText("일반회원");
 
 				// 회원 사진 설정
-				InputStream inputStream = rs.getBinaryStream("USER_IMAGE"); // 이미지를 읽어옴
-				try {
-					Image img = ImageIO.read(inputStream); // 읽어온 이미지를 img에 저장
-					Image resize_img = img.getScaledInstance(200, 225, Image.SCALE_SMOOTH); // 이미지 크기 195x225로 크기 조절하여
-																							// resize_img에 저장
-					ImageIcon icon = new ImageIcon(resize_img); // 조절한 크기의 이미지를 icon에 저장
-					userPictureLabel.setIcon(icon); // 유저 사진 설정
+				if(rs.getBinaryStream("USER_IMAGE") != null) {	//만약 유저 이미지가 존재한다면
+					InputStream inputStream = rs.getBinaryStream("USER_IMAGE"); // 이미지를 읽어옴
+					try {
+						Image img = ImageIO.read(inputStream); // 읽어온 이미지를 img에 저장
+						Image resize_img = img.getScaledInstance(200, 225, Image.SCALE_SMOOTH); // 이미지 크기 195x225로 크기 조절하여
+																								// resize_img에 저장
+						ImageIcon icon = new ImageIcon(resize_img); // 조절한 크기의 이미지를 icon에 저장
+						userPictureLabel.setIcon(icon); // 유저 사진 설정
+						userPictureLabel.setBorder(new LineBorder(Color.black, 1, false)); // 레이블 테두리 검은색으로 그려줌
+					} catch (IOException e) {
+						System.out.println("유저정보창에서 유저 이미지 불러오는 과정에서 오류발생");
+					}
+				}else {
+					//회원 사진이 없을 시 noavatar 사진 출력
+					ImageIcon icon = new ImageIcon("images/noavatar.jpg");
+					Image resize_img = icon.getImage().getScaledInstance(200, 225, Image.SCALE_SMOOTH); // 이미지 크기 195x225로 크기 조절하여
+					// resize_img에 저장
+					ImageIcon changeIcon = new ImageIcon(resize_img); // 조절한 크기의 이미지를 icon에 저장
+					userPictureLabel.setIcon(changeIcon); // 유저 사진 설정
 					userPictureLabel.setBorder(new LineBorder(Color.black, 1, false)); // 레이블 테두리 검은색으로 그려줌
-				} catch (IOException e) {
-					System.out.println("유저정보창에서 유저 이미지 불러오는 과정에서 오류발생");
 				}
 			}
 			// 대출정보 설정

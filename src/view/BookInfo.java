@@ -40,6 +40,8 @@ public class BookInfo extends JFrame {
 	String book_ISBN = "";
 	String user_phone = "";
 	private JPanel contentPane;
+	int bookReviewCnt = 0;	
+	int bookReviewGrade = 0;
 
 	/**
 	 * Launch the application.
@@ -221,11 +223,23 @@ public class BookInfo extends JFrame {
 		JSeparator separator = new JSeparator();
 		separator.setBounds(12, 63, -31, 2);
 		panel_3.add(separator);
+		
+		
 
 		try { // DB 접근
+			
+			//해당 도서의 평점 개수 가져오기
+			
+			 ResultSet rs = dbConn.executeQuery(
+					"SELECT COUNT(*) FROM REVIEW WHERE BOOK_ISBN = '" + book_ISBN + "';"
+					);
+			if(rs.next()) {
+				bookReviewCnt = rs.getInt(1);
+			}
+			
 				// ISBN으로 도서 정보 검색
-			ResultSet rs = dbConn.executeQuery(
-					"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_PRICE, BOOK_ISBN, BOOK_LINK, BOOK_DESCRIPTION, BOOK_IMAGE\r\n"
+			rs = dbConn.executeQuery(
+					"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_PRICE, BOOK_ISBN, BOOK_LINK, BOOK_DESCRIPTION, BOOK_IMAGE, BOOK_GRADE\r\n"
 							+ "FROM BOOK\r\n" + "WHERE BOOK_ISBN = '" + book_ISBN + "' AND BOOK_PRE = TRUE;");
 			while (rs.next()) {
 				bookNameLabel.setText(rs.getString("BOOK_TITLE")); // 책 제목 설정
@@ -235,6 +249,7 @@ public class BookInfo extends JFrame {
 				bookISBNLabel.setText("ISBN : " + rs.getString("BOOK_ISBN")); // 책 ISBN 설정
 				bookLinkLabel.setText("관련링크 : " + rs.getString("BOOK_LINK")); // 책 관련링크 설정
 				bookDescriptionLabel.setText(rs.getString("BOOK_DESCRIPTION")); // 책 줄거리 설정
+				bookReviewGrade = Integer.parseInt(rs.getString("BOOK_GRADE"));	//책 평점
 				// 책 이미지 설정
 				InputStream inputStream = rs.getBinaryStream("BOOK_IMAGE"); // 이미지를 읽어옴
 				try {
@@ -270,6 +285,32 @@ public class BookInfo extends JFrame {
 			}
 		} catch (SQLException e2) {
 			System.out.println("SQL 실행 에러");
+		}
+		
+		//책 평점 매기기
+		int bookScore = 0;
+		if(bookReviewCnt != 0) {
+			bookScore = bookReviewGrade / bookReviewCnt;
+		}
+		switch(bookScore) {
+		case 0:
+			bookGradeLabel.setText("☆☆☆☆☆");
+			break;
+		case 1:
+			bookGradeLabel.setText("★☆☆☆☆");
+			break;
+		case 2:
+			bookGradeLabel.setText("★★☆☆☆");
+			break;
+		case 3:
+			bookGradeLabel.setText("★★★☆☆");
+			break;
+		case 4:
+			bookGradeLabel.setText("★★★★☆");
+			break;
+		case 5:
+			bookGradeLabel.setText("★★★★★");
+			break;			
 		}
 	}
 
