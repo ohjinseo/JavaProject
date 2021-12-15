@@ -1,0 +1,3 @@
+bin/
+*.classpath
+src/View/dbConnector.java
