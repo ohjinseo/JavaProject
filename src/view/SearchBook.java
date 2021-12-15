@@ -21,10 +21,15 @@ import javax.swing.AbstractListModel;
 import javax.swing.border.CompoundBorder;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
+import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
 import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
+
+
 import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 import java.awt.event.MouseAdapter;
@@ -42,7 +47,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
+import java.util.regex.Pattern;
+
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ChangeEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.ItemEvent;
 
 public class SearchBook extends JFrame {
 	dbConnector dbConn = new dbConnector();
@@ -52,12 +66,18 @@ public class SearchBook extends JFrame {
 	private JTextField searchTextField;
 	private JTable table;
 	JComboBox searchComboBox;
+	JCheckBox[] jcb = new JCheckBox[10];
 	private final ButtonGroup buttonGroup_1 = new ButtonGroup();
 	private final ButtonGroup buttonGroup_2 = new ButtonGroup();
-
+	private int t = 0;
 	private Main mainFrame;
 	private UserInfo userInfoFrame;
-
+	private int checkNum = 0;
+	
+	//필터링 변수
+	HashMap<Object, RowFilter<Object, Object>> borrowFilter = new HashMap<>();
+	HashMap<Object, RowFilter<Object, Object>> categoryFilter = new HashMap<>();	//RowFilter 오브젝트 주소가 동적으로 바껴서 해시맵으로 키값으로 필터 처리
+	TableRowSorter<TableModel> trs;
 	/**
 	 * 도서 찾기 메인화면
 	 */
@@ -312,69 +332,103 @@ public class SearchBook extends JFrame {
 		categoryLabel.setBounds(12, 10, 70, 20);
 		categoryLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 15));
 		panel_2.add(categoryLabel);
+		
+		//카테고리 필터링 
+		
+		 trs = new TableRowSorter<>(table.getModel()); 
+		table.setRowSorter(trs);
+		
+		// 카테고리 체크박스
+		
+		jcb[0] = new JCheckBox("미분류");
+		jcb[0].setBackground(Color.WHITE);
+		jcb[0].setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		jcb[0].setBounds(8, 36, 107, 23);
+		panel_2.add(jcb[0]);
+		
 
 		// 카테고리 체크박스
-		JCheckBox oneCheckBox = new JCheckBox("\uD504\uB85C\uADF8\uB798\uBC0D");
-		oneCheckBox.setBackground(Color.WHITE);
-		oneCheckBox.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
-		oneCheckBox.setBounds(8, 36, 107, 23);
-		panel_2.add(oneCheckBox);
+		jcb[1] = new JCheckBox("교양과학");
+		jcb[1].setBackground(Color.WHITE);
+		jcb[1].setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		jcb[1].setBounds(8, 56, 107, 23);
+		panel_2.add(jcb[1]);
 
 		// 카테고리 체크박스
-		JCheckBox twoCheckBox = new JCheckBox("\uACFC\uD559");
-		twoCheckBox.setBackground(Color.WHITE);
-		twoCheckBox.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
-		twoCheckBox.setBounds(8, 56, 107, 23);
-		panel_2.add(twoCheckBox);
+		jcb[2] = new JCheckBox("시");
+		jcb[2].setBackground(Color.WHITE);
+		jcb[2].setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		jcb[2].setBounds(8, 81, 107, 23);
+		panel_2.add(jcb[2]);
 
 		// 카테고리 체크박스
-		JCheckBox threeCheckBox = new JCheckBox("\uBB38\uD559");
-		threeCheckBox.setBackground(Color.WHITE);
-		threeCheckBox.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
-		threeCheckBox.setBounds(8, 81, 107, 23);
-		panel_2.add(threeCheckBox);
+		jcb[3] = new JCheckBox("예술");
+		jcb[3].setBackground(Color.WHITE);
+		jcb[3].setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		jcb[3].setBounds(8, 106, 107, 23);
+		panel_2.add(jcb[3]);
 
 		// 카테고리 체크박스
-		JCheckBox fourCheckBox = new JCheckBox("\uC778\uBB38 / \uC0AC\uD68C");
-		fourCheckBox.setBackground(Color.WHITE);
-		fourCheckBox.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
-		fourCheckBox.setBounds(8, 106, 107, 23);
-		panel_2.add(fourCheckBox);
+		jcb[4] = new JCheckBox("소설");
+		jcb[4].setBackground(Color.WHITE);
+		jcb[4].setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		jcb[4].setBounds(8, 131, 107, 23);
+		panel_2.add(jcb[4]);
 
 		// 카테고리 체크박스
-		JCheckBox fiveCheckBox = new JCheckBox("\uBE44\uC988\uB2C8\uC2A4\uC640 \uACBD\uC81C");
-		fiveCheckBox.setBackground(Color.WHITE);
-		fiveCheckBox.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
-		fiveCheckBox.setBounds(8, 131, 107, 23);
-		panel_2.add(fiveCheckBox);
+		jcb[5]= new JCheckBox("\uB9CC\uD654");
+		jcb[5].setBackground(Color.WHITE);
+		jcb[5].setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		jcb[5].setBounds(8, 156, 107, 23);
+		panel_2.add(jcb[5]);
 
 		// 카테고리 체크박스
-		JCheckBox sixCheckBox = new JCheckBox("\uB9CC\uD654");
-		sixCheckBox.setBackground(Color.WHITE);
-		sixCheckBox.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
-		sixCheckBox.setBounds(8, 156, 107, 23);
-		panel_2.add(sixCheckBox);
+		jcb[6] = new JCheckBox("\uC5B4\uB9B0\uC774 / \uCCAD\uC18C\uB144");
+		jcb[6].setBackground(Color.WHITE);
+		jcb[6].setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		jcb[6].setBounds(8, 181, 107, 23);
+		panel_2.add(jcb[6]);
 
 		// 카테고리 체크박스
-		JCheckBox sevenCheckBox = new JCheckBox("\uC5B4\uB9B0\uC774 / \uCCAD\uC18C\uB144");
-		sevenCheckBox.setBackground(Color.WHITE);
-		sevenCheckBox.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
-		sevenCheckBox.setBounds(8, 181, 107, 23);
-		panel_2.add(sevenCheckBox);
+		jcb[7] = new JCheckBox("\uC218\uD5D8\uC11C / \uC790\uACA9\uC99D");
+		jcb[7].setBackground(Color.WHITE);
+		jcb[7].setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		jcb[7].setBounds(8, 204, 107, 23);
+		panel_2.add(jcb[7]);
 
 		// 카테고리 체크박스
-		JCheckBox eightCheckBox = new JCheckBox("\uC218\uD5D8\uC11C / \uC790\uACA9\uC99D");
-		eightCheckBox.setBackground(Color.WHITE);
-		eightCheckBox.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
-		eightCheckBox.setBounds(8, 204, 107, 23);
-		panel_2.add(eightCheckBox);
-
-		// 카테고리 체크박스
-		JCheckBox nineCheckBox = new JCheckBox("\uC608\uC220 ");
-		nineCheckBox.setBackground(Color.WHITE);
-		nineCheckBox.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
-		nineCheckBox.setBounds(8, 228, 107, 23);
-		panel_2.add(nineCheckBox);
+		jcb[8] = new JCheckBox("\uC608\uC220 ");
+		jcb[8].setBackground(Color.WHITE);
+		jcb[8].setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		jcb[8].setBounds(8, 228, 107, 23);
+		panel_2.add(jcb[8]);
+		
+		for( t = 0; t < 9; t++) {
+			jcb[t].addItemListener(new ItemListener() {
+				private int myIndex;	//자체 인덱스를 저장하기 위해 자체 변수 지정
+				{
+					this.myIndex = t;
+				}
+				public void itemStateChanged(ItemEvent e) {	//체크 박스 상태가 변한다면
+					if(e.getStateChange() == ItemEvent.SELECTED) {
+						categoryFilter.put(jcb[myIndex].getText(), RowFilter.regexFilter(jcb[myIndex].getText(), 3));	//테이블 3행에 있는 카테고리명을 필터항목에 추가시켜 해시맵에 삽입
+						checkNum++;
+					}else {
+						checkNum--;
+						if(categoryFilter.containsKey(jcb[myIndex].getText()))	//체크가 되어있지 않다면 해시맵에 해당 카테고리 키 값 여부를 확인하여 있으면 제거
+							categoryFilter.remove(jcb[myIndex].getText());
+						
+					}
+					combineOrAndFilters();
+					if(checkNum == 0) {
+						trs.setRowFilter(null);	//만약 체크 개수가 0이라면 필터 제거
+						
+					}
+					
+				}
+				
+			});
+		}
 
 		// 분류 라벨
 		JLabel sortLabel = new JLabel("\uC815\uB82C");
@@ -411,9 +465,24 @@ public class SearchBook extends JFrame {
 		canBorrowLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 15));
 		canBorrowLabel.setBounds(12, 378, 70, 20);
 		panel_2.add(canBorrowLabel);
-
+		
 		// 대출가능 라디오버튼
 		JRadioButton canborrowRadioButton = new JRadioButton("\uB300\uCD9C\uAC00\uB2A5");
+		
+		//대출 가능 필터링 이벤트
+		canborrowRadioButton.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED) {
+					borrowFilter.put(canborrowRadioButton.getText(), RowFilter.regexFilter(canborrowRadioButton.getText(), 4));	//테이블 5행에 있는 카테고리명을 필터항목에 추가시켜 해시맵에 삽입
+				}else {
+					
+					if(borrowFilter.containsKey(canborrowRadioButton.getText()))	//체크가 되어있지 않다면 해시맵에 해당 카테고리 키 값 여부를 확인하여 있으면 제거
+						borrowFilter.remove(canborrowRadioButton.getText());
+				}
+				
+				combineOrAndFilters();
+			}
+		});
 		canborrowRadioButton.setBackground(Color.WHITE);
 		buttonGroup_2.add(canborrowRadioButton);
 		canborrowRadioButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
@@ -422,12 +491,43 @@ public class SearchBook extends JFrame {
 
 		// 대출중 라디오버튼
 		JRadioButton borrowingNewRadioButton = new JRadioButton("\uB300\uCD9C\uC911");
+		borrowingNewRadioButton.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED) {
+					borrowFilter.put(borrowingNewRadioButton.getText(), RowFilter.regexFilter(borrowingNewRadioButton.getText(), 4));	//테이블 5행에 있는 카테고리명을 필터항목에 추가시켜 해시맵에 삽입
+				}else {
+					
+					if(borrowFilter.containsKey(borrowingNewRadioButton.getText()))	//체크가 되어있지 않다면 해시맵에 해당 카테고리 키 값 여부를 확인하여 있으면 제거
+						borrowFilter.remove(borrowingNewRadioButton.getText());
+				}
+				
+				combineOrAndFilters();
+			}
+		});
+		
 		borrowingNewRadioButton.setBackground(Color.WHITE);
 		buttonGroup_2.add(borrowingNewRadioButton);
 		borrowingNewRadioButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		borrowingNewRadioButton.setBounds(12, 429, 113, 23);
 		panel_2.add(borrowingNewRadioButton);
 
+	}
+	
+	//AndFilter와 OrFilter 결합 함수
+	public void combineOrAndFilters() {
+		RowFilter<Object, Object> or;
+		RowFilter<Object, Object> and;
+		ArrayList<RowFilter<Object, Object>> finalFilters = new ArrayList<RowFilter<Object, Object>>();
+		
+		if (categoryFilter.size() > 0) {
+			or = RowFilter.orFilter(categoryFilter.values());	//카테고리 필터는 or필터로 적용
+			finalFilters.add(or);
+		}
+		if (borrowFilter.size() > 0) {
+			and = RowFilter.andFilter(borrowFilter.values());	//대출 필터는 and필터로 적용
+			finalFilters.add(and);
+		}
+		trs.setRowFilter(RowFilter.andFilter(finalFilters)); //카테고리와 대출 필터는 and관계
 	}
 	
 	//검색 결과 도출하는 이벤트 함수
