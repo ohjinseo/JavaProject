@@ -43,6 +43,7 @@ public class Main extends JFrame {
 	public String user_phone = ""; // 유저 PK 정보를 저장할 변수
 	public Boolean manager = false; // 유저가 관리자인지 확인할 변수
 	private JPanel contentPane;
+	int t = 0;
 	BookInfo bookInfoFrame;
 	SearchUser searchUserFrame;
 	SearchBook searchBookFrame;
@@ -279,14 +280,14 @@ public class Main extends JFrame {
 		try { // DB 접근
 			ResultSet rs;
 			rs = dbConn.executeQuery(
-					"SELECT BOOK_IMAGE FROM BOOK WHERE BOOK_PRE = TRUE\r\n" + "order by BOOK_GRADE DESC;"); // 인기순으로 정렬
+					"SELECT BOOK_ISBN, BOOK_IMAGE FROM BOOK WHERE BOOK_PRE = TRUE\r\n" + "order by BOOK_GRADE DESC;"); // 인기순으로 정렬
 			
 			append_img(rs, popularBookLabel_array); // 인기순으로 상위 6개의 이미지를 인기순 패널의 popularBookLabel에 삽입
 
 			contentPane.add(popularBookPanel); // 컨텐트팬에 인기순 패널 부착
 			System.out.println("속도확인1");
 			rs = dbConn.executeQuery(
-					"SELECT BOOK_IMAGE FROM BOOK WHERE BOOK_PRE = TRUE\r\n" + "order by BOOK_APPEND_DATE DESC;"); // 최신순으로
+					"SELECT BOOK_ISBN, BOOK_IMAGE FROM BOOK WHERE BOOK_PRE = TRUE\r\n" + "order by BOOK_APPEND_DATE DESC;"); // 최신순으로
 																													// 정렬
 
 			append_img(rs, newlyBookLabel_array); // 인기순으로 상위 6개의 이미지를 인기순 패널의 popularBookLabel에 삽입
@@ -303,8 +304,10 @@ public class Main extends JFrame {
 	// ResultSet과 JLabel을 받아 JLabel에 읽은 이미지를 저장하는 함수
 	public void append_img(ResultSet rs, JLabel[] array) throws SQLException {
 		int i = 0;
+		String[] isbn_array = new String[6];	//isbn을 저장할 문자열 배열
 		while (rs.next()) {
 			InputStream inputStream = rs.getBinaryStream("BOOK_IMAGE"); // 이미지를 읽어옴
+			isbn_array[i] = rs.getString("BOOK_ISBN");
 			try {
 				BufferedImage img = ImageIO.read(inputStream); // 읽어온 이미지를 img에 저장
 				Image resize_img = img.getScaledInstance(105, 105, Image.SCALE_SMOOTH); // 이미지 크기 105x105로 크기 조절하여
@@ -319,5 +322,28 @@ public class Main extends JFrame {
 			if (i == 6) // 6개까지만 출력
 				break;
 		}
+		//메인 화면 창에서 도서 클릭시 이벤트
+				for (t = 0; t < i; t++) {
+					array[t].addMouseListener(new MouseAdapter() {
+						private int myIndex;	//자체 인덱스를 저장하기 위해 자체 변수 지정
+						{
+							this.myIndex = t;
+						}
+						@Override
+						public void mouseClicked(MouseEvent e) {
+							if (manager) {
+								EditableBookInfo manager_book_info = new EditableBookInfo(isbn_array[myIndex], user_phone, manager);
+								manager_book_info.setLocationRelativeTo(null); // 화면중앙에 출력
+								manager_book_info.setVisible(true); // 책 정보창 띄움
+							}else {
+								BookInfo bookinfo = new BookInfo(isbn_array[myIndex], user_phone); // 책 정보창 객체 생성 (매개변수 : 클릭한 책의 ISBN)
+								bookinfo.setLocationRelativeTo(null); // 화면중앙에 출력
+								bookinfo.setVisible(true); // 
+							}
+						}
+					});
+
+				}
+
 	}
 }
