@@ -22,6 +22,8 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.JComboBox;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 import javax.swing.JButton;
 import javax.swing.JTable;
@@ -48,6 +50,7 @@ import java.sql.SQLException;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -299,25 +302,32 @@ public class SearchBook extends JFrame {
 		scrollPane.setViewportView(table);
 		table.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 14));
 
-		String[] columns = { "제목", "저자", "출판사", "카테고리", "대출여부 (Y/N)" }; // 테이블의 구성
-		String[][] data;
-		DefaultTableModel model = new DefaultTableModel(null, columns);
-		table.setModel(model); // 테이블 세팅
-
+		
+		table.setModel(new DefaultTableModel(
+			new Object[][] {
+			},
+			new String[] {
+				"New column", "\uC81C\uBAA9", "\uC800\uC790", "\uCD9C\uD310\uC0AC", "\uCE74\uD14C\uACE0\uB9AC", "\uB300\uCD9C\uC5EC\uBD80", "\uD3C9\uC810", "\uB300\uC5EC\uD69F\uC218", "\uB3C4\uC11C\uCD94\uAC00\uB0A0\uC9DC"
+			}
+		));
+		table.getColumnModel().getColumn(1).setPreferredWidth(110);
+		table.getColumnModel().getColumn(2).setPreferredWidth(101);
+		table.getColumnModel().getColumn(3).setPreferredWidth(106);
+		table.getColumnModel().getColumn(4).setPreferredWidth(115);
+		table.getColumnModel().getColumn(5).setPreferredWidth(115);
+		table.getColumnModel().getColumn(6).setPreferredWidth(115);
+		table.getColumnModel().getColumn(7).setPreferredWidth(115);
+		table.getColumnModel().getColumn(8).setPreferredWidth(115);
+		
 		try { // DB 접근
 			//db에 있는 책 정보 검색
 			ResultSet rs = dbConn.executeQuery(
-					"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN FROM BOOK WHERE BOOK_PRE = TRUE;");
+					"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN, BOOK_GRADE, BOOK_RENT_COUNT, BOOK_APPEND_DATE FROM BOOK WHERE BOOK_PRE = TRUE;");
 			set_table(rs);
+			setTrs();
 		} catch (SQLException e) {
 			System.out.println("SQL 실행 에러");
 		}
-		// 간격 조절
-		table.getColumnModel().getColumn(0).setPreferredWidth(110);
-		table.getColumnModel().getColumn(1).setPreferredWidth(101);
-		table.getColumnModel().getColumn(2).setPreferredWidth(106);
-		table.getColumnModel().getColumn(3).setPreferredWidth(115);
-		table.getColumnModel().getColumn(4).setPreferredWidth(115);
 
 		// 검색 세부사항 패널
 		JPanel panel_2 = new JPanel();
@@ -334,9 +344,6 @@ public class SearchBook extends JFrame {
 		panel_2.add(categoryLabel);
 		
 		//카테고리 필터링 
-		
-		 trs = new TableRowSorter<>(table.getModel()); 
-		table.setRowSorter(trs);
 		
 		// 카테고리 체크박스
 		
@@ -396,14 +403,9 @@ public class SearchBook extends JFrame {
 		jcb[7].setBounds(8, 204, 107, 23);
 		panel_2.add(jcb[7]);
 
-		// 카테고리 체크박스
-		jcb[8] = new JCheckBox("\uC608\uC220 ");
-		jcb[8].setBackground(Color.WHITE);
-		jcb[8].setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
-		jcb[8].setBounds(8, 228, 107, 23);
-		panel_2.add(jcb[8]);
 		
-		for( t = 0; t < 9; t++) {
+		
+		for( t = 0; t < 8; t++) {
 			jcb[t].addItemListener(new ItemListener() {
 				private int myIndex;	//자체 인덱스를 저장하기 위해 자체 변수 지정
 				{
@@ -422,7 +424,7 @@ public class SearchBook extends JFrame {
 					combineOrAndFilters();
 					if(checkNum == 0) {
 						trs.setRowFilter(null);	//만약 체크 개수가 0이라면 필터 제거
-						
+						combineOrAndFilters();
 					}
 					
 				}
@@ -433,31 +435,92 @@ public class SearchBook extends JFrame {
 		// 분류 라벨
 		JLabel sortLabel = new JLabel("\uC815\uB82C");
 		sortLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 15));
-		sortLabel.setBounds(12, 267, 70, 20);
+		sortLabel.setBounds(12, 240, 70, 20);
 		panel_2.add(sortLabel);
+		
+		
 
+		List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+		
+		//제목순 라디오버튼
+		JRadioButton headerRadioButton = new JRadioButton("\uC81C\uBAA9\uC21C");
+		
+		buttonGroup_1.add(headerRadioButton);
+		headerRadioButton.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED) {
+					sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+				}else {
+					sortKeys.clear();
+					
+				}
+				trs.setSortKeys(sortKeys);
+			}
+		});
+		headerRadioButton.setSelected(false);
+		headerRadioButton.setSelected(true);
+		
+		headerRadioButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		headerRadioButton.setBackground(Color.WHITE);
+		headerRadioButton.setBounds(12, 266, 113, 23);
+		panel_2.add(headerRadioButton);
+		
 		// 최신순 라디오버튼
 		JRadioButton recentRadioButton = new JRadioButton("\uCD5C\uC2E0\uC21C");
+		recentRadioButton.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED) {
+					sortKeys.add(new RowSorter.SortKey(7, SortOrder.DESCENDING));
+				}else {
+					sortKeys.clear();
+					
+				}
+				trs.setSortKeys(sortKeys);
+			}
+		});
+		
 		recentRadioButton.setBackground(Color.WHITE);
 		buttonGroup_1.add(recentRadioButton);
 		recentRadioButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
-		recentRadioButton.setBounds(12, 293, 113, 23);
+		recentRadioButton.setBounds(12, 291, 113, 23);
 		panel_2.add(recentRadioButton);
 
 		// 인기순 라디오버튼
 		JRadioButton popularityRadioButton = new JRadioButton("\uC778\uAE30\uC21C");
+		popularityRadioButton.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED) {
+					sortKeys.add(new RowSorter.SortKey(6, SortOrder.DESCENDING));
+				}else {
+					sortKeys.clear();
+					
+				}
+				trs.setSortKeys(sortKeys);
+			}
+		});
 		popularityRadioButton.setBackground(Color.WHITE);
 		buttonGroup_1.add(popularityRadioButton);
 		popularityRadioButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
-		popularityRadioButton.setBounds(12, 318, 113, 23);
+		popularityRadioButton.setBounds(12, 316, 113, 23);
 		panel_2.add(popularityRadioButton);
 
 		// 평점순 라디오 버튼
 		JRadioButton gradeRadioButton = new JRadioButton("\uD3C9\uC810\uC21C");
+		gradeRadioButton.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED) {
+					sortKeys.add(new RowSorter.SortKey(5, SortOrder.DESCENDING));
+				}else {
+					sortKeys.clear();
+					
+				}
+				trs.setSortKeys(sortKeys);
+			}
+		});
 		gradeRadioButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		buttonGroup_1.add(gradeRadioButton);
 		gradeRadioButton.setBackground(Color.WHITE);
-		gradeRadioButton.setBounds(12, 343, 113, 23);
+		gradeRadioButton.setBounds(12, 341, 113, 23);
 		panel_2.add(gradeRadioButton);
 
 		// 대출여부 라벨
@@ -473,7 +536,7 @@ public class SearchBook extends JFrame {
 		canborrowRadioButton.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				if(e.getStateChange() == ItemEvent.SELECTED) {
-					borrowFilter.put(canborrowRadioButton.getText(), RowFilter.regexFilter(canborrowRadioButton.getText(), 4));	//테이블 5행에 있는 카테고리명을 필터항목에 추가시켜 해시맵에 삽입
+					borrowFilter.put(canborrowRadioButton.getText(), RowFilter.regexFilter(canborrowRadioButton.getText(), 4));	//테이블 5행에 있는 대출여부명을 필터항목에 추가시켜 해시맵에 삽입
 				}else {
 					
 					if(borrowFilter.containsKey(canborrowRadioButton.getText()))	//체크가 되어있지 않다면 해시맵에 해당 카테고리 키 값 여부를 확인하여 있으면 제거
@@ -486,7 +549,7 @@ public class SearchBook extends JFrame {
 		canborrowRadioButton.setBackground(Color.WHITE);
 		buttonGroup_2.add(canborrowRadioButton);
 		canborrowRadioButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
-		canborrowRadioButton.setBounds(12, 404, 113, 23);
+		canborrowRadioButton.setBounds(12, 428, 113, 23);
 		panel_2.add(canborrowRadioButton);
 
 		// 대출중 라디오버튼
@@ -494,7 +557,7 @@ public class SearchBook extends JFrame {
 		borrowingNewRadioButton.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				if(e.getStateChange() == ItemEvent.SELECTED) {
-					borrowFilter.put(borrowingNewRadioButton.getText(), RowFilter.regexFilter(borrowingNewRadioButton.getText(), 4));	//테이블 5행에 있는 카테고리명을 필터항목에 추가시켜 해시맵에 삽입
+					borrowFilter.put(borrowingNewRadioButton.getText(), RowFilter.regexFilter(borrowingNewRadioButton.getText(), 4));	//테이블 5행에 있는 대출여부명을 필터항목에 추가시켜 해시맵에 삽입
 				}else {
 					
 					if(borrowFilter.containsKey(borrowingNewRadioButton.getText()))	//체크가 되어있지 않다면 해시맵에 해당 카테고리 키 값 여부를 확인하여 있으면 제거
@@ -504,13 +567,29 @@ public class SearchBook extends JFrame {
 				combineOrAndFilters();
 			}
 		});
-		
 		borrowingNewRadioButton.setBackground(Color.WHITE);
 		buttonGroup_2.add(borrowingNewRadioButton);
 		borrowingNewRadioButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
-		borrowingNewRadioButton.setBounds(12, 429, 113, 23);
+		borrowingNewRadioButton.setBounds(12, 453, 113, 23);
 		panel_2.add(borrowingNewRadioButton);
-
+		
+		//전체보기 라디오버튼
+		JRadioButton AllBorrowRadioButton = new JRadioButton("\uC804\uCCB4\uBCF4\uAE30");
+		AllBorrowRadioButton.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED) {
+					borrowFilter.clear();
+				}
+				
+				combineOrAndFilters();
+			}
+		});
+		buttonGroup_2.add(AllBorrowRadioButton);
+		AllBorrowRadioButton.setSelected(true);
+		AllBorrowRadioButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
+		AllBorrowRadioButton.setBackground(Color.WHITE);
+		AllBorrowRadioButton.setBounds(12, 403, 113, 23);
+		panel_2.add(AllBorrowRadioButton);
 	}
 	
 	//AndFilter와 OrFilter 결합 함수
@@ -528,6 +607,27 @@ public class SearchBook extends JFrame {
 			finalFilters.add(and);
 		}
 		trs.setRowFilter(RowFilter.andFilter(finalFilters)); //카테고리와 대출 필터는 and관계
+	}
+	
+	//테이블 필터링을 위한 초기화 함수
+	public void setTrs() {
+		trs = new TableRowSorter<>(table.getModel()); 	
+		table.setRowSorter(trs);
+		trs.setComparator(5, new Comparator<Object>(){	//JTable은 기본적으로 문자열로 정렬하기 때문에 두자리수 이상부터 적용이안되서 따로 비교하는 함수를 작성
+			        public int compare(Object o1, Object o2){
+			        	Integer a = Integer.parseInt((String) o1);
+			        	Integer b = Integer.parseInt((String) o2);
+			            return a.compareTo(b);
+			        }
+			    });
+				
+				trs.setComparator(6, new Comparator<Object>(){	//JTable은 기본적으로 문자열로 정렬하기 때문에 두자리수 이상부터 적용이안되서 따로 비교하는 함수를 작성
+			        public int compare(Object o1, Object o2){
+			        	Integer a = Integer.parseInt((String) o1);
+			        	Integer b = Integer.parseInt((String) o2);
+			            return a.compareTo(b);
+			        }
+			    });
 	}
 	
 	//검색 결과 도출하는 이벤트 함수
@@ -551,12 +651,16 @@ public class SearchBook extends JFrame {
 						+ searchTextField.getText() + "%' OR BOOK_PUB";
 				break;
 			}
-			rs = dbConn.executeQuery("SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN\r\n"
+			rs = dbConn.executeQuery("SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN, BOOK_GRADE, BOOK_RENT_COUNT, BOOK_APPEND_DATE\r\n"
 					+ "FROM BOOK\r\n" + "WHERE (BOOK_" + search_how + " LIKE '" + searchTextField.getText()
 					+ "%')AND BOOK_PRE = TRUE;"); // DB에서 검생창에 입력된 값으로 책 정보 검색
-
 			if (rs != null) // 검색결과가 있으면
+			{
+				//나중에 체크박스 원상복구시키는 코드도 여기 작성  
+				System.out.println("검색완료");
 				set_table(rs); // 테이블 재구성
+				setTrs();	//테이블을 재구성을 했으므로 필터링 초기화도 같이해줌
+			}
 			else // 없으면
 				System.out.println("검색결과가 없습니다.");
 		} catch (SQLException e2) {
@@ -574,7 +678,7 @@ public class SearchBook extends JFrame {
 				rs.beforeFirst(); // 다시 앞으로 이동시킴
 			}
 
-			String[][] data = new String[row][5]; // 테이블에 넣을 데이터를 저장할 배열
+			String[][] data = new String[row][8]; // 테이블에 넣을 데이터를 저장할 배열
 			int i = 0;
 			// 일은 데이터로 테이블 구성
 			while (rs.next()) {
@@ -582,6 +686,7 @@ public class SearchBook extends JFrame {
 				data[i][1] = rs.getString("BOOK_AUTHOR");
 				data[i][2] = rs.getString("BOOK_PUB");
 				data[i][3] = rs.getString("BOOK_CATEGORY");
+				
 				String book_ISBN = rs.getString("BOOK_ISBN");
 				//해당 책이 대출중인 도서인지 검색
 				ResultSet rs_rent = dbConn.executeQuery(
@@ -593,10 +698,38 @@ public class SearchBook extends JFrame {
 				} else {
 					data[i][4] = "대출가능";
 				}
+				
+				
+				//해당 도서의 평점 개수 가져오기
+				
+				int bookReviewGrade = Integer.parseInt(rs.getString("BOOK_GRADE"));
+				int bookReviewCnt = 0;
+				ResultSet rs1 = dbConn.executeQuery(
+						"SELECT COUNT(*) FROM REVIEW WHERE BOOK_ISBN = '" + book_ISBN + "';"
+						);
+				if(rs1.next()) {
+					bookReviewCnt = rs1.getInt(1);
+				}
+				
+				//책 평점 매기기
+				int bookScore = 0;
+				if(bookReviewCnt != 0) {
+					bookScore = bookReviewGrade / bookReviewCnt;
+				}
+				
+				data[i][5] = Integer.toString(bookScore);
+				
+				data[i][6] = rs.getString("BOOK_RENT_COUNT");
+				data[i][7] = rs.getString("BOOK_APPEND_DATE");
+				
 				i++;
 			}
-			String[] columns = { "제목", "저자", "출판사", "카테고리", "대출여부" }; // 테이블의 구성
+			String[] columns = { "제목", "저자", "출판사", "카테고리", "대출여부", "평점", "대여횟수", "도서추가날짜" }; // 테이블의 구성
 			table.setModel(new DefaultTableModel(data, columns)); // 테이들 다시 세팅
+			
+			table.removeColumn(table.getColumnModel().getColumn(5));	//평점, 대여횟수, 도서추가날짜 컬럼들을 숨김
+			table.removeColumn(table.getColumnModel().getColumn(5));
+			table.removeColumn(table.getColumnModel().getColumn(5));
 		} catch (SQLException e) {
 			System.out.println("SQL 실행 에러");
 		}
