@@ -496,7 +496,7 @@ public class UserInfo extends JFrame {
 		try { // DB 접근
 			ResultSet rs = dbConn.executeQuery(
 					"SELECT USER_NAME, USER_BIRTH, USER_SEX, USER_PHONE, USER_MAIL, USER_PW, USER_POINT, USER_IMAGE FROM USER\r\n"
-							+ "WHERE USER_PHONE = '" + user_phone + "';"); //
+							+ "WHERE USER_PHONE = '" + user_phone + "';"); 
 
 			while (rs.next()) {
 				userNameTextField.setText(rs.getString("USER_NAME")); // 유저 이름 설정

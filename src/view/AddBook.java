@@ -280,10 +280,10 @@ public class AddBook extends JFrame {
 					
 					
 					int count = ps.executeUpdate();
-					if(count==0) {	//도서 추가 성공시
+					if(count==0) {	
 						JOptionPane.showMessageDialog(null,"ISBN : "+bookISBNTextField.getText()+"이(는) 등록에 실패하였습니다.", "신규도서등록 실패", JOptionPane.ERROR_MESSAGE);
 					}
-					else {		//도서 추가 실패시
+					else {		
 						JOptionPane.showMessageDialog(null,"ISBN : "+bookISBNTextField.getText()+"이(는) 등록에 성공하였습니다.", "신규도서등록 성공", JOptionPane.NO_OPTION);
 					}
 				} catch (SQLException e1) {
