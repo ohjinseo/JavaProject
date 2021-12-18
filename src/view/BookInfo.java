@@ -103,7 +103,7 @@ public class BookInfo extends JFrame {
 						updateUserSuspension(0);
 					}
 
-					if ((userPoint < 50 && bookBorrowCnt < 3 || userPoint >= 50 && bookBorrowCnt < 5) && !userSus) // 대출 성공 했을때
+					if ((((userPoint < 50 && bookBorrowCnt < 3) || (userPoint >= 50 && bookBorrowCnt < 5))) && !userSus) // 대출 성공 했을때
 					{
 						if (BookRent() == 1) {
 							Date now = new Date();
@@ -121,7 +121,7 @@ public class BookInfo extends JFrame {
 							updateBookRentCnt();
 						}
 
-					} else if ((userPoint < 50 && bookBorrowCnt >= 3 || userPoint >= 50 && bookBorrowCnt >= 5)
+					} else if (((userPoint < 50 && bookBorrowCnt >= 3) || (userPoint >= 50 && bookBorrowCnt >= 5))
 							&& !userSus) // 대출 실패 했을 때(대출 가능 도서수 초과)
 						JOptionPane.showMessageDialog(null, "대출 가능한 도서수를 초과하였습니다.\n다른 도서를 반납 후 다시 시도해 주세요.", "대출실패",
 								JOptionPane.WARNING_MESSAGE);
@@ -270,12 +270,14 @@ public class BookInfo extends JFrame {
 			ResultSet rs = dbConn.executeQuery("SELECT COUNT(*) FROM REVIEW WHERE BOOK_ISBN = '" + book_ISBN + "';");
 			if (rs.next()) {
 				bookReviewCnt = rs.getInt(1);
+				System.out.println("bookReviewCnt : "+bookReviewCnt);
 			}
 
 			// 사용자의 대여 횟수 가져오기
-			rs = dbConn.executeQuery("SELECT COUNT(*) FROM RENT WHERE USER_PHONE = '" + user_phone + "' AND RENT_RETURN_YN = NULL;");
+			rs = dbConn.executeQuery("SELECT COUNT(*) FROM RENT WHERE USER_PHONE = '" + user_phone + "' AND RENT_RETURN_YN is NULL;");
 			if (rs.next()) {
 				bookBorrowCnt = rs.getInt(1);
+				System.out.println("bookBorrowCnt : "+bookBorrowCnt);
 			}
 
 			// 사용자의 유저 등급 가져오기 (실시간으로 반영이 되야하므로 매개변수 전달이아닌 매번 쿼리문으로 조회)

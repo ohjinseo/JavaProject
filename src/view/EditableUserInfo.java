@@ -12,6 +12,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
@@ -34,6 +35,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -338,39 +340,40 @@ public class EditableUserInfo extends JFrame {
 		table.setModel(new DefaultTableModel(null, columns));
 		scrollPane.setViewportView(table);
 
-		JButton editButton = new JButton("\uD0C8\uD1F4\uC2DC\uD0A4\uAE30");
+		JButton editButton = new JButton("탈퇴시키기");
 		editButton.addMouseListener(new MouseAdapter() {
-			// 수정하기 버튼을 클릭했을 때
+			// 탈퇴시키기 버튼을 클릭했을 때
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (editButton.getText().equals("수정하기")) {
-					userNameTextField.setEditable(true);
-					yearComboBox.setEnabled(true);
-					monthComboBox.setEnabled(true);
-					dayComboBox.setEnabled(true);
-					manRadioButton.setEnabled(true);
-					womanRadioButton.setEnabled(true);
-					userPhoneFirstTextField.setEditable(true);
-					userPhoneSecondTextField.setEditable(true);
-					userPhoneThirdTextField.setEditable(true);
-					userEmailTextField.setEditable(true);
-					userPasswordTextField.setEditable(true);
-					secondUserPasswordTextField.setEditable(true);
-					editButton.setText("수정완료");
-				} else if (editButton.getText().equals("수정완료")) {
-					userNameTextField.setEditable(false);
-					yearComboBox.setEnabled(false);
-					monthComboBox.setEnabled(false);
-					dayComboBox.setEnabled(false);
-					manRadioButton.setEnabled(false);
-					womanRadioButton.setEnabled(false);
-					userPhoneFirstTextField.setEditable(false);
-					userPhoneSecondTextField.setEditable(false);
-					userPhoneThirdTextField.setEditable(false);
-					userEmailTextField.setEditable(false);
-					userPasswordTextField.setEditable(false);
-					secondUserPasswordTextField.setEditable(false);
-					editButton.setText("수정하기");
+				if (editButton.getText().equals("탈퇴시키기")) {
+					try {
+						ResultSet rs2 = dbConn.executeQuery("SELECT BOOK_ISBN FROM RENT WHERE USER_PHONE = '"
+								+ user_phone + "' AND RENT_RETURN_YN IS NULL;");
+						if (rs2.next()) {
+							JOptionPane.showMessageDialog(null, "회원이 대출중인 도서가 있습니다.", "회원 탈퇴 실패",
+									JOptionPane.ERROR_MESSAGE);
+						} else {
+							String sql = "UPDATE USER SET USER_OUT_DATE = NOW() WHERE USER_PHONE = ?;";
+
+							// DB 접근
+							PreparedStatement ps = dbConn.conn.prepareStatement(sql);
+
+							ps.setString(1, user_phone); // 탈퇴시킬 유저의 PK
+
+							int count = ps.executeUpdate();
+							if (count == 0) {
+								JOptionPane.showMessageDialog(null, "회원 탈퇴에 실패하였습니다.", "회원 탈퇴 실패",
+										JOptionPane.ERROR_MESSAGE);
+							} else {
+								JOptionPane.showMessageDialog(null, "회원 탈퇴에 성공하였습니다.", "회원 탈퇴 성공",
+										JOptionPane.NO_OPTION);
+							}
+							editButton.setEnabled(false); // 버튼 비활성화
+						}
+					} catch (SQLException e1) {
+						e1.printStackTrace(); // 에러 추적
+						System.out.println("회원탈퇴 과정에서 SQL 실행 에러");
+					}
 				}
 			}
 		});
@@ -381,7 +384,7 @@ public class EditableUserInfo extends JFrame {
 
 		try { // DB 접근
 			ResultSet rs = dbConn.executeQuery(
-					"SELECT USER_NAME, USER_BIRTH, USER_SEX, USER_PHONE, USER_MAIL, USER_PW, USER_POINT, USER_IMAGE FROM USER\r\n"
+					"SELECT USER_NAME, USER_BIRTH, USER_SEX, USER_PHONE, USER_MAIL, USER_PW, USER_POINT, USER_IMAGE, USER_OUT_DATE FROM USER\r\n"
 							+ "WHERE USER_PHONE = '" + user_phone + "';"); //
 
 			while (rs.next()) {
@@ -400,7 +403,7 @@ public class EditableUserInfo extends JFrame {
 					day = day.substring(1); // 0을 땐 값을 day에 저장
 				dayComboBox.setSelectedItem(day);
 
-				// 성별에 따른 라이도버튼 체크 설정
+				// 성별에 따른 라디오버튼 체크 설정
 				if (rs.getString("USER_SEX").equals("1")) // 1이면 남자
 					manRadioButton.setSelected(true);
 				else // 0이면 여자
@@ -427,11 +430,12 @@ public class EditableUserInfo extends JFrame {
 					levelTextField.setText("일반회원");
 
 				// 회원 사진 설정
-				if(rs.getBinaryStream("USER_IMAGE") != null) {	//만약 유저 이미지가 존재한다면
+				if (rs.getBinaryStream("USER_IMAGE") != null) { // 만약 유저 이미지가 존재한다면
 					InputStream inputStream = rs.getBinaryStream("USER_IMAGE"); // 이미지를 읽어옴
 					try {
 						Image img = ImageIO.read(inputStream); // 읽어온 이미지를 img에 저장
-						Image resize_img = img.getScaledInstance(200, 225, Image.SCALE_SMOOTH); // 이미지 크기 195x225로 크기 조절하여
+						Image resize_img = img.getScaledInstance(200, 225, Image.SCALE_SMOOTH); // 이미지 크기 195x225로 크기
+																								// 조절하여
 																								// resize_img에 저장
 						ImageIcon icon = new ImageIcon(resize_img); // 조절한 크기의 이미지를 icon에 저장
 						userPictureLabel.setIcon(icon); // 유저 사진 설정
@@ -439,16 +443,23 @@ public class EditableUserInfo extends JFrame {
 					} catch (IOException e) {
 						System.out.println("유저정보창에서 유저 이미지 불러오는 과정에서 오류발생");
 					}
-				}else {
-					//회원 사진이 없을 시 noavatar 사진 출력
+				} else {
+					// 회원 사진이 없을 시 noavatar 사진 출력
 					ImageIcon icon = new ImageIcon("images/noavatar.jpg");
-					Image resize_img = icon.getImage().getScaledInstance(200, 225, Image.SCALE_SMOOTH); // 이미지 크기 195x225로 크기 조절하여
+					Image resize_img = icon.getImage().getScaledInstance(200, 225, Image.SCALE_SMOOTH); // 이미지 크기
+																										// 195x225로 크기
+																										// 조절하여
 					// resize_img에 저장
 					ImageIcon changeIcon = new ImageIcon(resize_img); // 조절한 크기의 이미지를 icon에 저장
 					userPictureLabel.setIcon(changeIcon); // 유저 사진 설정
 					userPictureLabel.setBorder(new LineBorder(Color.black, 1, false)); // 레이블 테두리 검은색으로 그려줌
 				}
+				if (rs.getString("USER_OUT_DATE") != null) { // 탈퇴된 유저면 탈퇴시키기 버튼 비활성화
+					editButton.setEnabled(false);
+					editButton.setText("탈퇴 회원");
+				}
 			}
+
 			// 대출정보 설정
 			rs = dbConn.executeQuery("SELECT BOOK_ISBN, RENT_DATE, RENT_RETURN_DATE FROM RENT WHERE USER_PHONE = '"
 					+ user_phone + "' AND RENT_RETURN_YN IS NULL;");
@@ -481,7 +492,7 @@ public class EditableUserInfo extends JFrame {
 			table.setModel(new DefaultTableModel(data, columns)); // 테이들 다시 세팅
 
 		} catch (SQLException e) {
-			System.out.println("유저 정보창에서 SQL 실행 에러");
+			System.out.println("관리자의 유저 정보창에서 SQL 실행 에러");
 		}
 	}
 }

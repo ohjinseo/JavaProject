@@ -51,7 +51,7 @@ public class Login extends JFrame {
 			public void run() {
 				try {
 					Login frame = new Login();
-					frame.setLocationRelativeTo(null);	//중앙에 출력
+					frame.setLocationRelativeTo(null); // 중앙에 출력
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -67,13 +67,12 @@ public class Login extends JFrame {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowOpened(WindowEvent e) {
-				loginTextField.requestFocus();	//로그인 창이 생성되면 바로 Id로 포커싱
+				loginTextField.requestFocus(); // 로그인 창이 생성되면 바로 Id로 포커싱
 			}
 		});
-	
+
 		setResizable(false); // 창 크기 고정
 
-		
 		setTitle("\uB3C4\uC11C \uAD00\uB9AC \uD504\uB85C\uADF8\uB7A8 - \uB85C\uADF8\uC778\uBA54\uC778");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 510, 301);
@@ -94,9 +93,8 @@ public class Login extends JFrame {
 		idLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		idLabel.setFont(new Font("한컴산뜻돋움", Font.BOLD, 16));
 		idLabel.setBounds(12, 10, 80, 36);
-		
+
 		panel.add(idLabel);
-		
 
 		JLabel passwordLabel = new JLabel("\uBE44\uBC00\uBC88\uD638");
 		passwordLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -105,14 +103,14 @@ public class Login extends JFrame {
 		panel.add(passwordLabel);
 
 		loginTextField = new JTextField();
-		
+
 		loginTextField.addFocusListener(new FocusAdapter() {
-			
+
 			@Override
 			public void focusLost(FocusEvent e) {
-				passwordTextField.grabFocus();	//Id 포커스를 벗어날 시 패스워드로 포커스
+				passwordTextField.grabFocus(); // Id 포커스를 벗어날 시 패스워드로 포커스
 			}
-			
+
 		});
 		loginTextField.setBackground(new Color(245, 245, 245));
 		loginTextField.setBounds(104, 17, 267, 28);
@@ -122,7 +120,7 @@ public class Login extends JFrame {
 		passwordTextField = new JTextField();
 		passwordTextField.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				login_event();	//엔터 시 로그인 이벤트 함수 호출
+				login_event(); // 엔터 시 로그인 이벤트 함수 호출
 			}
 		});
 		passwordTextField.setBackground(new Color(245, 245, 245));
@@ -135,7 +133,7 @@ public class Login extends JFrame {
 		loginButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				login_event();	//로그인 이벤트 함수 호출
+				login_event(); // 로그인 이벤트 함수 호출
 			}
 
 		});
@@ -191,14 +189,15 @@ public class Login extends JFrame {
 		signupButton.setBounds(357, 212, 113, 35);
 		contentPane.add(signupButton);
 	}
-	
-	//로그인 접근 이벤트 함수
+
+	// 로그인 접근 이벤트 함수
 	public void login_event() {
 		int flag = 0; // 0이면 로그인 수락, 1이면 로그인 거절
-		String user_phone ="";
+		String user_phone = "";
 		Boolean manager = false;
 		try { // DB 접근
-			ResultSet rs = dbConn.executeQuery("select USER_PW, USER_MAIL, USER_PHONE, USER_MANAGER from USER"); // USER 테이블에서 MAIL과 PW 검색
+			ResultSet rs = dbConn
+					.executeQuery("select USER_PW, USER_MAIL, USER_PHONE, USER_MANAGER, USER_OUT_DATE from USER"); 
 			// 쿼리문 결과
 			while (rs.next()) {
 				if (loginTextField.getText().equals(rs.getString("USER_MAIL"))) // 아이디 창에 입력한 메일과 일치하는 메일이 DB에
@@ -206,10 +205,15 @@ public class Login extends JFrame {
 					if (passwordTextField.getText().equals(rs.getString("USER_PW"))) // 패스워드 창에 입력한 패스워드와 메일의
 																						// 패스워드가 일치하면
 					{
-						user_phone=rs.getString("USER_PHONE");
-						manager = rs.getBoolean("USER_MANAGER");
-						flag = 1; // 로그인 수락
-						break;
+						if (rs.getString("USER_OUT_DATE") == null) {	//탈퇴회원이 아니면
+							user_phone = rs.getString("USER_PHONE");
+							manager = rs.getBoolean("USER_MANAGER");
+							flag = 1; // 로그인 수락
+							break;
+						} else {	//탈퇴회원이면
+							JOptionPane.showMessageDialog(null, "탈퇴된 회원입니다.", "탈퇴 회원", JOptionPane.ERROR_MESSAGE);
+							break;
+						}
 					}
 			}
 		} catch (SQLException e2) {
@@ -217,9 +221,9 @@ public class Login extends JFrame {
 		}
 		if (flag == 1) { // 로그인이 수락 되었으면
 			System.out.println("로그인 성공");
-			mainFrame = new Main(user_phone,manager); // 메인 프레임 객체 생성
+			mainFrame = new Main(user_phone, manager); // 메인 프레임 객체 생성
 			mainFrame.setVisible(true); // 메인 프레임을 호출
-			
+
 			setVisible(false); // 로그인 프레임 닫음
 		} else {
 			System.out.println("로그인 실패");

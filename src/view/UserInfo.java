@@ -12,6 +12,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
@@ -22,8 +23,10 @@ import javax.swing.JScrollPane;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.JButton;
 import javax.swing.border.LineBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.JRadioButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.DefaultComboBoxModel;
 import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
@@ -34,8 +37,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -164,7 +171,7 @@ public class UserInfo extends JFrame {
 			search_user_menu.setBackground(new Color(230, 230, 250));
 			search_user_menu.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 			menuBar.add(search_user_menu);
-			
+
 			JMenu add_book_menu = new JMenu("도서추가");
 			add_book_menu.addMouseListener(new MouseAdapter() { // 마우스 클릭 이벤트 발생시 호출
 				@Override
@@ -426,6 +433,77 @@ public class UserInfo extends JFrame {
 		dupleButton.setEnabled(false);
 		panel.add(dupleButton);
 
+		// 이미지 파일 필터
+		JFileChooser user_img = new JFileChooser();
+		FileNameExtensionFilter fileFilter = new FileNameExtensionFilter("All Images", "jpg", "jpge", "png", "gif");
+		user_img.setFileFilter(fileFilter);
+
+		// 책 주소 라벨
+		JLabel user_img_path = new JLabel("이미지 주소");
+		user_img_path.setBounds(22, 306, 157, 29);
+		user_img_path.setEnabled(false);
+		contentPane.add(user_img_path);
+
+		// 회원 이미지 찾기 버튼
+		JButton userImageFindButton = new JButton("찾아보기");
+		userImageFindButton.setBounds(22, 361, 157, 39);
+		userImageFindButton.setEnabled(false);
+		contentPane.add(userImageFindButton);
+
+		userImageFindButton.addMouseListener(new MouseAdapter() { // 클릭이벤트
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int ret = user_img.showOpenDialog(null); // 파일 찾는 창을 띄우줌
+				if (ret == 0) { // 파일을 선택했다면
+
+					String filePath = user_img.getSelectedFile().getPath(); // 파일 경로를 filePath에 저장
+					// 선택한 파일경로를 메시지 창으로 띄움
+					JOptionPane.showMessageDialog(null, filePath, "당신이 선택한 파일은", JOptionPane.NO_OPTION);
+
+					user_img_path.setText(filePath);
+					try { // DB 접근
+							// 책 이미지
+						File tmpFile = new File(user_img_path.getText());
+
+						Image img = ImageIO.read(tmpFile); // 읽어온 이미지를 img에 저장
+						// 이미지 크기 200x225 로 크기 조절하여 resize_img에 저장
+						Image resize_img = img.getScaledInstance(200, 225, Image.SCALE_SMOOTH);
+
+						ImageIcon icon = new ImageIcon(resize_img); // 조절한 크기의 이미지를 icon에 저장
+						userPictureLabel.setIcon(icon); // 회원 사진 레이블에 이미지 부착
+						userPictureLabel.setBorder(new LineBorder(Color.black, 1, false)); // 레이블 테두리 검은색으로 그려줌
+
+						String sql = "UPDATE USER SET USER_IMAGE = ? WHERE USER_PHONE = ?;";
+						PreparedStatement ps = dbConn.conn.prepareStatement(sql);
+
+						// 유저 이미지
+						FileInputStream fin = new FileInputStream(user_img_path.getText());
+						ps.setBinaryStream(1, fin, fin.available());
+						ps.setString(2, user_phone);
+
+						int count = ps.executeUpdate();
+						if (count == 0) {
+							JOptionPane.showMessageDialog(null, "회원 이미지 수정에 실패하였습니다.", "회원 이미지 수정 실패",
+									JOptionPane.ERROR_MESSAGE);
+						} else {
+							JOptionPane.showMessageDialog(null, "회원 이미지 수정에 성공하였습니다.", "회원 이미지 수정 성공",
+									JOptionPane.NO_OPTION);
+						}
+
+					} catch (SQLException e1) {
+						e1.printStackTrace(); // 에러 추적
+						System.out.println("회원 이미지 수정 화면에서 SQL 실행 에러");
+					} catch (FileNotFoundException e1) {
+						System.out.println("회원 이미지 수정 화면에서 회원 사진 파일 찾기 에러");
+					} catch (IOException e1) {
+						System.out.println("회원 이미지 수정 화면에서 파일 출력");
+					}
+				}
+			}
+		});
+		userImageFindButton.setFont(new Font("\uD55C\uCEF4\uC0B0\uB73B\uB3CB\uC6C0",
+				userImageFindButton.getFont().getStyle() | Font.BOLD, userImageFindButton.getFont().getSize() + 3));
+
 		// 대출 패널
 		JPanel panel_1 = new JPanel();
 		panel_1.setBorder(new LineBorder(new Color(128, 128, 128), 2));
@@ -456,6 +534,8 @@ public class UserInfo extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (editButton.getText().equals("수정하기")) {
+					user_img_path.setEnabled(true);
+					userImageFindButton.setEnabled(true);
 					userNameTextField.setEditable(true);
 					yearComboBox.setEnabled(true);
 					monthComboBox.setEnabled(true);
@@ -470,7 +550,10 @@ public class UserInfo extends JFrame {
 					secondUserPasswordTextField.setEditable(true);
 					dupleButton.setEnabled(true);
 					editButton.setText("수정완료");
-				} else if (editButton.getText().equals("수정완료")) {
+				} else if (editButton.getText().equals("수정완료")
+						&& userPasswordTextField.getText().equals(secondUserPasswordTextField.getText())) {
+					user_img_path.setEnabled(false);
+					userImageFindButton.setEnabled(false);
 					userNameTextField.setEditable(false);
 					yearComboBox.setEnabled(false);
 					monthComboBox.setEnabled(false);
@@ -485,9 +568,75 @@ public class UserInfo extends JFrame {
 					secondUserPasswordTextField.setEditable(false);
 					dupleButton.setEnabled(false);
 					editButton.setText("수정하기");
+
+					String sql = "UPDATE USER\r\n"
+							+ "SET USER_NAME = ?, USER_BIRTH = ?, USER_SEX = ?, USER_PHONE = ?, USER_MAIL = ?, USER_PW = ?\r\n"
+							+ "WHERE USER_PHONE = ?;\r\n";
+
+					try { // DB 접근
+						PreparedStatement ps = dbConn.conn.prepareStatement(sql);
+
+						// 유저 이름
+						String name = userNameTextField.getText();
+
+						// 출생일 설정
+						String birth = yearComboBox.getSelectedItem().toString(); // 생년월일을 저장할 변수 birth에 year콤보박스의
+																					// 값을 저장
+						String month = monthComboBox.getSelectedItem().toString(); // month콤보박스의 값을 month에 저장
+						String day = dayComboBox.getSelectedItem().toString(); // day콤보박스의 값을 month에 저장
+						// birth에 month와 day의 값을 연결
+						if (Integer.parseInt(month) < 10) // 01~09월이면
+							birth = birth.concat("-0" + month);
+						else
+							birth = birth.concat("-" + month);
+						if (Integer.parseInt(day) < 10) // 01~09일이면
+							birth = birth.concat("-0" + day);
+						else
+							birth = birth.concat("-" + day);
+
+						Boolean sex;
+						// 성별
+						if (manRadioButton.isSelected())
+							sex = true;
+						else // 0이면 여자
+							sex = false;
+
+						// 전화번호
+						String phone = userPhoneFirstTextField.getText()
+								.concat(userPhoneSecondTextField.getText() + userPhoneThirdTextField.getText());
+
+						// 이메일
+						String mail = userEmailTextField.getText();
+
+						// 비밀번호
+						String pw = userPasswordTextField.getText();
+
+						ps.setString(1, name); // 이름
+						ps.setString(2, birth); // 생년월일
+						ps.setBoolean(3, sex); // 성별
+						ps.setString(4, phone); // 전화번호
+						ps.setString(5, mail); // 이메일
+						ps.setString(6, pw); // 비밀번호
+						ps.setString(7, user_phone);
+
+						int count = ps.executeUpdate();
+						if (count == 0) {
+							JOptionPane.showMessageDialog(null, "회원정보 수정에 실패하였습니다.", "회원정보 수정 실패",
+									JOptionPane.ERROR_MESSAGE);
+						} else {
+							JOptionPane.showMessageDialog(null, "회원정보 수정에 성공하였습니다.", "회원정보 수정 성공",
+									JOptionPane.NO_OPTION);
+						}
+					} catch (SQLException e1) {
+						e1.printStackTrace(); // 에러 추적
+						System.out.println("회원정보수정 에서 SQL 실행 에러");
+					}
+				} else { // 비밀번호와 중복확인이 일치하지 않으면 메시지창 띄움
+					JOptionPane.showMessageDialog(null, "비밀번호 중복확인이 일치하지 않습니다.", "중복확인 오류", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
+
 		editButton.setFont(new Font("\uD55C\uCEF4\uC0B0\uB73B\uB3CB\uC6C0", editButton.getFont().getStyle() | Font.BOLD,
 				editButton.getFont().getSize() + 3));
 		editButton.setBounds(340, 163, 117, 28);
@@ -496,7 +645,7 @@ public class UserInfo extends JFrame {
 		try { // DB 접근
 			ResultSet rs = dbConn.executeQuery(
 					"SELECT USER_NAME, USER_BIRTH, USER_SEX, USER_PHONE, USER_MAIL, USER_PW, USER_POINT, USER_IMAGE FROM USER\r\n"
-							+ "WHERE USER_PHONE = '" + user_phone + "';"); 
+							+ "WHERE USER_PHONE = '" + user_phone + "';");
 
 			while (rs.next()) {
 				userNameTextField.setText(rs.getString("USER_NAME")); // 유저 이름 설정
@@ -535,40 +684,43 @@ public class UserInfo extends JFrame {
 				// 회원등급 설정
 				if (manager) { // 관리자이면
 					levelTextField.setText("관리자");
-				} else {		//관리자가 아닌 회원이면
+				} else { // 관리자가 아닌 회원이면
 					int point = Integer.parseInt(rs.getString("USER_POINT"));
-					if (point >= 50)	//USER 포인트가 50점 이상이면 우수회원
+					if (point >= 50) // USER 포인트가 50점 이상이면 우수회원
 						levelTextField.setText("우수회원");
 					else
 						levelTextField.setText("일반회원");
 				}
-				
+
 				// 회원 사진 설정
-				if(rs.getBinaryStream("USER_IMAGE") != null) {	//만약 유저 이미지가 존재한다면
+				if (rs.getBinaryStream("USER_IMAGE") != null) { // 만약 유저 이미지가 존재한다면
 					InputStream inputStream = rs.getBinaryStream("USER_IMAGE"); // 이미지를 읽어옴
 					try {
-						
+
 						Image img = ImageIO.read(inputStream); // 읽어온 이미지를 img에 저장
-						
-						Image resize_img = img.getScaledInstance(200, 225, Image.SCALE_SMOOTH); // 이미지 크기 195x225로 크기 조절하여
+
+						Image resize_img = img.getScaledInstance(200, 225, Image.SCALE_SMOOTH); // 이미지 크기 195x225로 크기
+																								// 조절하여
 																								// resize_img에 저장
+
 						ImageIcon icon = new ImageIcon(resize_img); // 조절한 크기의 이미지를 icon에 저장
 						userPictureLabel.setIcon(icon); // 유저 사진 설정
 						userPictureLabel.setBorder(new LineBorder(Color.black, 1, false)); // 레이블 테두리 검은색으로 그려줌
 					} catch (IOException e) {
 						System.out.println("유저정보창에서 유저 이미지 불러오는 과정에서 오류발생");
 					}
-				}else {
-					//회원 사진이 없을 시 noavatar 사진 출력
+				} else {
+					// 회원 사진이 없을 시 noavatar 사진 출력
 					ImageIcon icon = new ImageIcon("images/noavatar.jpg");
-					Image resize_img = icon.getImage().getScaledInstance(200, 225, Image.SCALE_SMOOTH); // 이미지 크기 195x225로 크기 조절하여
+					Image resize_img = icon.getImage().getScaledInstance(200, 225, Image.SCALE_SMOOTH); // 이미지 크기
+																										// 195x225로 크기
+																										// 조절하여
 					// resize_img에 저장
 					ImageIcon changeIcon = new ImageIcon(resize_img); // 조절한 크기의 이미지를 icon에 저장
 					userPictureLabel.setIcon(changeIcon); // 유저 사진 설정
 					userPictureLabel.setBorder(new LineBorder(Color.black, 1, false)); // 레이블 테두리 검은색으로 그려줌
 				}
-				
-				
+
 			}
 			// 대출정보 설정
 			rs = dbConn.executeQuery("SELECT BOOK_ISBN, RENT_DATE, RENT_RETURN_DATE FROM RENT WHERE USER_PHONE = '"
@@ -600,7 +752,6 @@ public class UserInfo extends JFrame {
 				i++;
 			}
 			table.setModel(new DefaultTableModel(data, columns)); // 테이들 다시 세팅
-
 		} catch (SQLException e) {
 			System.out.println("유저 정보창에서 SQL 실행 에러");
 		}
