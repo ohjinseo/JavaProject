@@ -7,38 +7,31 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import java.awt.Font;
 import javax.swing.JButton;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.awt.SystemColor;
 
 public class WriteReview extends JFrame {
-
+	dbConnector dbConn = new dbConnector();
+	private String user_phone;
+	private String book_ISBN;
 	private JPanel contentPane;
+	private int starCnt = 0;
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					WriteReview frame = new WriteReview();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
 
 	/**
 	 * Create the frame.
 	 */
-	public WriteReview() {
+	public WriteReview(String book_ISBN, String user_phone) {
+		this.user_phone = user_phone;
+		this.book_ISBN = book_ISBN;
 		setTitle("\uD55C\uC904\uD3C9 \uC791\uC131");
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -93,10 +86,14 @@ public class WriteReview extends JFrame {
 		starFirstLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (starFirstLabel.getText() == "☆")
+				if (starFirstLabel.getText() == "☆") {
+					
 					starFirstLabel.setText("★");
+					starCnt = 1;
+				}
 				else
 				{
+					starCnt = 0;
 					starFirstLabel.setText("☆");
 					starSecondLabel.setText("☆");
 					starThirdLabel.setText("☆");
@@ -112,9 +109,11 @@ public class WriteReview extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (starSecondLabel.getText() == "☆") {
+					starCnt = 2;
 					starFirstLabel.setText("★");
 					starSecondLabel.setText("★");
 				} else {
+					starCnt = 1;
 					starSecondLabel.setText("☆");
 					starThirdLabel.setText("☆");
 					starFourthLabel.setText("☆");
@@ -129,10 +128,12 @@ public class WriteReview extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (starThirdLabel.getText() == "☆") {
+					starCnt = 3;
 					starFirstLabel.setText("★");
 					starSecondLabel.setText("★");
 					starThirdLabel.setText("★");
 				} else {
+					starCnt = 2;
 					starThirdLabel.setText("☆");
 					starFourthLabel.setText("☆");
 					starFifthLabel.setText("☆");
@@ -146,11 +147,13 @@ public class WriteReview extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (starFourthLabel.getText() == "☆") {
+					starCnt = 4;
 					starFirstLabel.setText("★");
 					starSecondLabel.setText("★");
 					starThirdLabel.setText("★");
 					starFourthLabel.setText("★");
 				} else {
+					starCnt = 3;
 					starFourthLabel.setText("☆");
 					starFifthLabel.setText("☆");
 				}
@@ -163,13 +166,16 @@ public class WriteReview extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (starFifthLabel.getText() == "☆") {
+					starCnt = 5;
 					starFirstLabel.setText("★");
 					starSecondLabel.setText("★");
 					starThirdLabel.setText("★");
 					starFourthLabel.setText("★");
 					starFifthLabel.setText("★");
-				} else
+				} else {
+					starCnt = 4;
 					starFifthLabel.setText("☆");
+				}
 			}
 		});
 		
@@ -190,6 +196,31 @@ public class WriteReview extends JFrame {
 		OkButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				try {
+					String sql = "insert into REVIEW(\r\n"
+							+ "BOOK_ISBN,\r\n"
+							+ "USER_PHONE,\r\n"
+							+ "REVIEW_TEXT\r\n"
+							+ ")values(\r\n"
+							+ "?, ?, ?);";
+					PreparedStatement ps = dbConn.conn.prepareStatement(sql);
+					
+					ps.setString(1, book_ISBN);
+					ps.setString(2,  user_phone);
+					ps.setString(3,  ReviewTextArea.getText());
+					
+					int count = ps.executeUpdate();
+					if(count==0) {	
+						JOptionPane.showMessageDialog(null, "리뷰 등록실패", "리뷰등록실패", JOptionPane.ERROR_MESSAGE);
+					}
+					else {		
+						JOptionPane.showMessageDialog(null, "리뷰 감사합니다", "리뷰등록성공",JOptionPane.NO_OPTION);
+						updateBookGrade();
+					}
+				}catch(SQLException e1) {
+					e1.printStackTrace();
+					System.out.println("리뷰 sql 오류");
+				}
 				dispose();
 			}
 		});
@@ -208,5 +239,21 @@ public class WriteReview extends JFrame {
 		CancleButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		CancleButton.setBounds(312, 5, 91, 23);
 		panel_1.add(CancleButton);
+		
+		
 	}
+	
+	public void updateBookGrade() {
+		String sql = "update BOOK\r\n" + "SET BOOK_GRADE = BOOK_GRADE + " + starCnt + "\r\nWHERE BOOK_ISBN = '"
+				+ book_ISBN + "';";
+		try { // DB 접근
+			PreparedStatement ps = dbConn.conn.prepareStatement(sql);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("updateBookGrade sql 오류");
+		}
+	}
+	
+	
 }
