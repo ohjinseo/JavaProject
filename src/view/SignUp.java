@@ -659,10 +659,10 @@ public class SignUp extends JFrame {
 					}
 				} catch (SQLException e1) {
 					e1.printStackTrace();	//에러 추적
-					System.out.println("도서추가 화면에서 SQL 실행 에러");
+					System.out.println("회원가입 SQL 실행 에러");
 				}catch(FileNotFoundException e1) {
 					e1.printStackTrace();
-					System.out.println("도서추가 화면에서 파일 찾기 에러");
+					System.out.println("사진 파일 찾기 에러");
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
