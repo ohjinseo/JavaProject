@@ -19,6 +19,7 @@ import java.awt.SystemColor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.PreparedStatement;
@@ -97,31 +98,33 @@ public class BookInfo extends JFrame {
 
 				if (bookBorrowButton.getText().equals("대출하기")) // 대출하기 버튼 상태일 때
 				{
-					if (isSuspension()) {	//만약 연체 유저라면
+					if (isSuspension()) { // 만약 연체 유저라면
 						userSus = true;
-					}else {	//만약 연체 유저가 아니거나 정지일이 지난 유저라면
+					} else { // 만약 연체 유저가 아니거나 정지일이 지난 유저라면
 						updateUserSuspension(0);
 					}
 
-					if ((((userPoint < 50 && bookBorrowCnt < 3) || (userPoint >= 50 && bookBorrowCnt < 5))) && !userSus) // 대출 성공 했을때
+					if ((userPoint < 50 && bookBorrowCnt < 3 || userPoint >= 50 && bookBorrowCnt < 5) && !userSus) // 대출
+																													// 성공
+																													// 했을때
 					{
 						if (BookRent() == 1) {
 							Date now = new Date();
-							
+
 							Calendar cal = Calendar.getInstance();
-							cal.setTime(now); 
+							cal.setTime(now);
 							cal.add(Calendar.DATE, 14);
 							Date date = cal.getTime();
 							SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 							String dt = sdf.format(date);
-							
+
 							JOptionPane.showMessageDialog(null, "해당 도서를 대출하였습니다.\n" + dt + "까지 반납해 주세요.", "대출성공",
 									JOptionPane.INFORMATION_MESSAGE);
 							bookBorrowButton.setText("반납하기");
 							updateBookRentCnt();
 						}
 
-					} else if (((userPoint < 50 && bookBorrowCnt >= 3) || (userPoint >= 50 && bookBorrowCnt >= 5))
+					} else if ((userPoint < 50 && bookBorrowCnt >= 3 || userPoint >= 50 && bookBorrowCnt >= 5)
 							&& !userSus) // 대출 실패 했을 때(대출 가능 도서수 초과)
 						JOptionPane.showMessageDialog(null, "대출 가능한 도서수를 초과하였습니다.\n다른 도서를 반납 후 다시 시도해 주세요.", "대출실패",
 								JOptionPane.WARNING_MESSAGE);
@@ -132,17 +135,16 @@ public class BookInfo extends JFrame {
 
 				} else if (bookBorrowButton.getText().equals("반납하기")) // 반납하기 버튼 상태일 때
 				{
-					if (!userSus) 
-					{
+					if (!userSus) {
 						JOptionPane.showMessageDialog(null, "반납에 성공하였습니다", "반납성공", JOptionPane.INFORMATION_MESSAGE);
 					} else // 연체된 경우
 						JOptionPane.showMessageDialog(null,
 								"반납에 성공하였습니다\n회원님의 연체일은 " + diffDays + "일입니다.\n해당 기간동안 책을 이용하실 수 없습니다.", "반납성공",
 								JOptionPane.INFORMATION_MESSAGE);
-					 //리뷰 작성창 띄움
-					 WriteReview writereview = new WriteReview(book_ISBN, user_phone);
-					 writereview.setVisible(true);
-					updateBookReturn();	//반납 업뎃함수
+					// 리뷰 작성창 띄움
+					WriteReview writereview = new WriteReview(book_ISBN, user_phone);
+					writereview.setVisible(true);
+					updateBookReturn(); // 반납 업뎃함수
 					bookBorrowButton.setText("대출하기"); // 대출하기 버튼으로 변경
 				}
 
@@ -211,9 +213,14 @@ public class BookInfo extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (bookFavoritesLabel.getText() == "☆") // 별 체크가 안된경우
+				{
+					favorite_event();
 					bookFavoritesLabel.setText("★"); // 별 체크
-				else // 나머지 경우(별 체크가 된 경우)
+				} else // 나머지 경우(별 체크가 된 경우)
+				{
+					favorite_delete_event();
 					bookFavoritesLabel.setText("☆"); // 별 체크 해제
+				}
 			}
 		});
 		bookFavoritesLabel.setFont(new Font("한컴산뜻돋움", Font.BOLD, 20));
@@ -270,14 +277,13 @@ public class BookInfo extends JFrame {
 			ResultSet rs = dbConn.executeQuery("SELECT COUNT(*) FROM REVIEW WHERE BOOK_ISBN = '" + book_ISBN + "';");
 			if (rs.next()) {
 				bookReviewCnt = rs.getInt(1);
-				System.out.println("bookReviewCnt : "+bookReviewCnt);
 			}
 
 			// 사용자의 대여 횟수 가져오기
-			rs = dbConn.executeQuery("SELECT COUNT(*) FROM RENT WHERE USER_PHONE = '" + user_phone + "' AND RENT_RETURN_YN is NULL;");
+			rs = dbConn.executeQuery(
+					"SELECT COUNT(*) FROM RENT WHERE USER_PHONE = '" + user_phone + "' AND RENT_RETURN_YN = NULL;");
 			if (rs.next()) {
 				bookBorrowCnt = rs.getInt(1);
-				System.out.println("bookBorrowCnt : "+bookBorrowCnt);
 			}
 
 			// 사용자의 유저 등급 가져오기 (실시간으로 반영이 되야하므로 매개변수 전달이아닌 매번 쿼리문으로 조회)
@@ -365,31 +371,33 @@ public class BookInfo extends JFrame {
 			bookGradeLabel.setText("★★★★★");
 			break;
 		}
-		
+
 	}
 
 	// 유저의 정지 여부를 업데이트 하는 함수
 	public void updateUserSuspension(int day) {
 		String sql;
-		if(day == 0) {	//연체일이 0라면
-			sql = "update USER\r\n" + "SET USER_SUSPENSION = NULL\r\n" + "WHERE USER_PHONE = '"
-					+ user_phone + "';"; // 해당 유저의 정지일을 NULL로 업데이트
-		}
-		else {
+		if (day == 0) { // 연체일이 0라면
+			sql = "update USER\r\n" + "SET USER_SUSPENSION = NULL\r\n" + "WHERE USER_PHONE = '" + user_phone + "';"; // 해당
+																														// 유저의
+																														// 정지일을
+																														// NULL로
+																														// 업데이트
+		} else {
 			Date now = new Date();
-	
+
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(now); // 현재 유저가 접속한 날짜를 기준으로 정지일을 추가시킴.
 			cal.add(Calendar.DATE, day);
 			Date dt = cal.getTime(); // Calendar 타입을 Date타입으로 변환
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			String diffTime = sdf.format(dt); // Date타입을 Mysql DATETIME 형식으로 포멧
-	
-			sql = "update USER\r\n" + "SET USER_POINT = USER_POINT-5, USER_SUSPENSION = '" + diffTime + "'\r\n" + "WHERE USER_PHONE = '"
-					+ user_phone + "';"; // 해당 유저의 정지일을 업데이트시키고 포인트 5점을 깎음.
-			
+
+			sql = "update USER\r\n" + "SET USER_POINT = USER_POINT-5, USER_SUSPENSION = '" + diffTime + "'\r\n"
+					+ "WHERE USER_PHONE = '" + user_phone + "';"; // 해당 유저의 정지일을 업데이트시키고 포인트 5점을 깎음.
+
 			sql = "update USER SET USER_POINT = USER_POINT + 5\r\n" + "WHERE USER_PHONE = '" + user_phone + "';";
-			
+
 		}
 		try { // DB 접근
 			PreparedStatement ps = dbConn.conn.prepareStatement(sql);
@@ -410,22 +418,23 @@ public class BookInfo extends JFrame {
 		try {
 			nowDate = dateFormat.parse(LocalDate.now().toString());
 			try {
-				ResultSet rs1 = dbConn.executeQuery("SELECT USER_SUSPENSION FROM USER WHERE USER_PHONE='" + user_phone + "';");
-				while(rs1.next()) {
-					if(rs1.getString("USER_SUSPENSION") != null) {
-							
+				ResultSet rs1 = dbConn
+						.executeQuery("SELECT USER_SUSPENSION FROM USER WHERE USER_PHONE='" + user_phone + "';");
+				while (rs1.next()) {
+					if (rs1.getString("USER_SUSPENSION") != null) {
+
 						String s = rs1.getString("USER_SUSPENSION");
 						s.substring(0, 10); // Mysql DATETIME 타입에서 날짜만 가져옴
 						susDate = dateFormat.parse(s);
-						
+
 						int compare = nowDate.compareTo(susDate); // 현재 날짜와 정지 날짜를 비교하면 compare가 0보다 크다면 정지
-						
+
 						if (compare > 0) { // 만약 정지 날짜가 현재 날짜보다 뒤에있다면
 							return true;
 						}
 					}
 				}
-				
+
 				ResultSet rs = dbConn.executeQuery("SELECT RENT_RETURN_DATE FROM RENT WHERE USER_PHONE='" + user_phone
 						+ "' AND RENT_RETURN_YN IS NULL;");
 
@@ -435,7 +444,7 @@ public class BookInfo extends JFrame {
 					returnDate = dateFormat.parse(s);
 
 					int compare = nowDate.compareTo(returnDate); // 현재 날짜와 반납 날짜를 비교하면 compare가 0보다 크다면 반납 기한을 지남
-					
+
 					if (compare > 0) { // 만약 반납 날짜가 현재 날짜를 지났다면
 						Calendar nowCal = Calendar.getInstance();
 						nowCal.setTime(nowDate);
@@ -446,8 +455,7 @@ public class BookInfo extends JFrame {
 						diffDays = diffSec / (24 * 60 * 60); // 현재 날짜와 반납 일자수 차이
 
 						updateUserSuspension((int) diffDays); // 해당 유저의 정지일을 업데이트하기 위해 정지 업뎃함수를 호출함.
-						
-						
+
 						return true;
 					}
 				}
@@ -491,21 +499,48 @@ public class BookInfo extends JFrame {
 			System.out.println("bookRentCnt sql 오류");
 		}
 	}
+	//즐겨찾기 이벤트 함수
+	public void favorite_event() {
+		String sql = "insert into FAVORITES(\r\n"
+					+"BOOK_ISBN,\r\n"
+					+"USER_PHONE\r\n"
+					+")values(\r\n"
+					+"?, ?);";
+		try { // DB 접근
+			PreparedStatement ps = dbConn.conn.prepareStatement(sql);
+			
+			ps.setString(1, book_ISBN);		//도서 ISBN
+			ps.setString(2, user_phone);	//유저 휴대전화
+			
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("즐겨찾기 추가 sql 오류");
+		}
+	}
 	
-	//도서 반납 함수
+	public void favorite_delete_event() {
+		String sql = "delete from FAVORITES(\r\n"
+					+"where FAVORITES.USER_PHONE = "+user_phone+"\r\n"
+					+"and FAVORITES.BOOK_ISBN = "+book_ISBN+"\r\n";
+		try { // DB 접근
+			PreparedStatement ps = dbConn.conn.prepareStatement(sql);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("즐겨찾기 삭제 sql 오류");
+		}
+	}
+	// 도서 반납 함수
 	public void updateBookReturn() {
-		String sql = "update RENT\r\n" 
-	+ "SET RENT_RETURN_YN = NOW()\r\n" 
-	+ "WHERE RENT.USER_PHONE = '"
-	+ user_phone + "' AND RENT.BOOK_ISBN = '" + book_ISBN + "';";
-		
-		
-		
+		String sql = "update RENT\r\n" + "SET RENT_RETURN_YN = NOW()\r\n" + "WHERE RENT.USER_PHONE = '" + user_phone
+				+ "' AND RENT.BOOK_ISBN = '" + book_ISBN + "';";
+
 		try { // DB 접근
 			PreparedStatement ps = dbConn.conn.prepareStatement(sql);
 			ps.executeUpdate();
 			sql = "update USER SET USER_POINT = USER_POINT + 5\r\n" + "WHERE USER_PHONE = '" + user_phone + "';";
-			ps = dbConn.conn.prepareStatement(sql); //반납에 성공했으므로 유저 포인트를 5증가
+			ps = dbConn.conn.prepareStatement(sql); // 반납에 성공했으므로 유저 포인트를 5증가
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
