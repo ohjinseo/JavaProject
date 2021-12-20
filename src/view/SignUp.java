@@ -95,6 +95,9 @@ public class SignUp extends JFrame {
 	private boolean secondPhoneError=true;
 	private boolean thirdPhoneError=true;
 	
+	// 번호 중복 확인여부 변수
+	private boolean isEmailDupleChecked;
+	
 	//이미지 파일 경로
 	private String filePath;
 	
@@ -318,6 +321,7 @@ public class SignUp extends JFrame {
 		userPhoneFirstTextField.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
+				isEmailDupleChecked=false; //값이 변경되었으므로 다시 중복검사 받도록함
 				String first=userPhoneFirstTextField.getText();
 				if (first.equals("")||!first.matches("[+-]?\\d*(\\.\\d+)?")) { //빈칸이거나 숫자가아님
 					firstPhoneError=true; //전화 에러O
@@ -325,9 +329,18 @@ public class SignUp extends JFrame {
 					firstPhoneError=false; //전화 에러X
 				}
 				
-				if(firstPhoneError||secondPhoneError||thirdPhoneError)
+				//오류출력부분
+				if(firstPhoneError||secondPhoneError||thirdPhoneError) // 3개중 하나가 오류 있는경우 
 				{
-					userPhoneErrorLabel.setText("올바른 전화번호를 입력해주세요."); // 3개중 하나가 오류 있는경우 오류출력
+					userPhoneErrorLabel.setText("올바른 전화번호를 입력해주세요."); // 올바른 문자가아님 오류출력
+						
+					phoneError=true; //전화에러O
+					
+				}
+				else if(!isEmailDupleChecked)//중복체크 안한경우
+				{
+					userPhoneErrorLabel.setText("중복 확인을 해주세요."); // 중복체크요구 오류출력
+					
 					phoneError=true; //전화에러O
 				}
 				else
@@ -350,6 +363,7 @@ public class SignUp extends JFrame {
 		userPhoneSecondTextField.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
+				isEmailDupleChecked=false; //값이 변경되었으므로 다시 중복검사 받도록함
 				String second=userPhoneSecondTextField.getText();
 				if (second.equals("")||!second.matches("[+-]?\\d*(\\.\\d+)?")) { //빈칸이거나 숫자가아님
 					secondPhoneError=true; //전화 에러O
@@ -357,9 +371,17 @@ public class SignUp extends JFrame {
 					secondPhoneError=false; //전화 에러X
 				}
 				
-				if(firstPhoneError||secondPhoneError||thirdPhoneError)
+				//오류출력부분
+				if(firstPhoneError||secondPhoneError||thirdPhoneError) // 3개중 하나가 오류 있는경우 
 				{
-					userPhoneErrorLabel.setText("올바른 전화번호를 입력해주세요."); // 3개중 하나가 오류 있는경우 오류출력
+					userPhoneErrorLabel.setText("올바른 전화번호를 입력해주세요."); // 올바른 문자가아님 오류출력
+					
+					phoneError=true; //전화에러O
+				}
+				else if(!isEmailDupleChecked)//중복체크 안한경우
+				{
+					userPhoneErrorLabel.setText("중복 확인을 해주세요."); // 중복체크요구 오류출력
+					
 					phoneError=true; //전화에러O
 				}
 				else
@@ -380,6 +402,7 @@ public class SignUp extends JFrame {
 		userPhoneThirdTextField.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
+				isEmailDupleChecked=false; //값이 변경되었으므로 다시 중복검사 받도록함
 				String third=userPhoneThirdTextField.getText();
 				if (third.equals("")||!third.matches("[+-]?\\d*(\\.\\d+)?")) { //빈칸이거나 숫자가아님
 					thirdPhoneError=true; //전화 에러O
@@ -387,9 +410,16 @@ public class SignUp extends JFrame {
 					thirdPhoneError=false; //전화 에러X
 				}
 				
-				if(firstPhoneError||secondPhoneError||thirdPhoneError)
+				if(firstPhoneError||secondPhoneError||thirdPhoneError)// 3개중 하나가 오류 있는경우 
 				{
-					userPhoneErrorLabel.setText("올바른 전화번호를 입력해주세요."); // 3개중 하나가 오류 있는경우 오류출력
+					userPhoneErrorLabel.setText("올바른 전화번호를 입력해주세요."); // 올바른 문자가아님 오류출력
+
+					phoneError=true; //전화에러O
+				}
+				else if(!isEmailDupleChecked)//중복체크 안한경우
+				{
+					userPhoneErrorLabel.setText("중복 확인을 해주세요."); // 중복체크요구 오류출력
+					
 					phoneError=true; //전화에러O
 				}
 				else
@@ -520,19 +550,26 @@ public class SignUp extends JFrame {
 		dupleButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) { //클릭했을 때
+				if(userPhoneErrorLabel.getText().equals("중복 확인을 해주세요.")) { //문자관련 오류들이 없어서 중복확인을 요구할떄
 				String userPhone=userPhoneFirstTextField.getText()+userPhoneSecondTextField.getText()+userPhoneThirdTextField.getText();
-				String sql = "select USER_PHONE from USER where USER_PHONE = "+userPhone;
-		
+				String sql = "select USER_PHONE\r\n"+" from USER where USER_PHONE = '"+userPhone+"'";
+
 				ResultSet rs=dbConn.executeQuery(sql);
-				if(rs!=null) { //결과가 null이 아닌경우(검색결과가 존재하는 경우)
-					userPhoneErrorLabel.setText("이미 가입된 회원입니다.");
-					phoneError=true;
-				}
-				else {
-					phoneError=false;
-				}
-			
-			
+				try {
+					if(rs.next()) { //결과가 null이 아닌경우(검색결과가 존재하는 경우)
+						userPhoneErrorLabel.setText("이미 가입된 회원입니다.");
+						phoneError=true;
+					}
+					else {
+						userPhoneErrorLabel.setText("");
+						isEmailDupleChecked=true;
+						phoneError=false;
+					}
+					
+				} catch (SQLException e1) {
+					e1.printStackTrace();
+				}	
+			}
 			}
 		});
 		dupleButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
@@ -642,6 +679,9 @@ public class SignUp extends JFrame {
 						day="0"+day; //형식 바꾸기(ex 0 -> 01)
 					String userBirth=year+"-"+month+"-"+day;
 					
+					String img="USER_IMAGE,\r\n";
+					String imgResult="?";
+					
 					String sql = "insert into USER(\r\n"
 							+ "USER_PHONE,\r\n"
 							+ "USER_NAME,\r\n"
@@ -655,18 +695,38 @@ public class SignUp extends JFrame {
 							+"?, ?, '"+userBirth+"', ?, ?, ?, now(), ?);";
 					
 				try { // DB 접근
-					PreparedStatement ps = dbConn.conn.prepareStatement(sql);
-	
-					ps.setString(1, userPhone);							//유저 전화번호
-					ps.setString(2, userNameTextField.getText());		//유저 이름
-					ps.setBoolean(3, manRadioButton.isSelected());		//유저 성별
-					ps.setString(4, userEmailTextField.getText());		//유저 이메일
-					
+					PreparedStatement ps;
 					//유저 사진
-					FileInputStream fin = new FileInputStream(filePath);
-					ps.setBinaryStream(5, fin, fin.available());
-					
-					ps.setString(6, userPasswordTextField.getText());	//유저 비번
+					try { //유저 이미지 있음
+						FileInputStream fin = new FileInputStream(filePath);
+						
+						ps = dbConn.conn.prepareStatement(sql);
+						
+						ps.setString(1, userPhone);							//유저 전화번호
+						ps.setString(2, userNameTextField.getText());		//유저 이름
+						ps.setBoolean(3, manRadioButton.isSelected());		//유저 성별
+						ps.setString(4, userEmailTextField.getText());		//유저 이메일
+						ps.setBinaryStream(5, fin, fin.available());		//유저 이미지
+						ps.setString(6, userPasswordTextField.getText());	//유저 비번
+					}catch(NullPointerException e1) { //유저 이미지 null임
+						sql ="insert into USER(\r\n"
+								+ "USER_PHONE,\r\n"
+								+ "USER_NAME,\r\n"
+								+ "USER_BIRTH,\r\n"
+								+ "USER_SEX,\r\n"
+								+ "USER_MAIL,\r\n"
+								+ "USER_REG_DATE,\r\n"
+								+ "USER_PW\r\n"
+								+ ")values(\r\n"
+								+"?, ?, '"+userBirth+"', ?, ?, now(), ?);"; //유저 이미지 삽입 명령 삭제된 버전
+						ps = dbConn.conn.prepareStatement(sql);
+						
+						ps.setString(1, userPhone);							//유저 전화번호
+						ps.setString(2, userNameTextField.getText());		//유저 이름
+						ps.setBoolean(3, manRadioButton.isSelected());		//유저 성별
+						ps.setString(4, userEmailTextField.getText());		//유저 이메일
+						ps.setString(5, userPasswordTextField.getText());	//유저 비번
+					}
 					
 					int count = ps.executeUpdate();
 					if(count==0) {	
