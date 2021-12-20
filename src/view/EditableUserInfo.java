@@ -38,7 +38,11 @@ import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.StringTokenizer;
 
 import javax.swing.JPasswordField;
@@ -486,7 +490,12 @@ public class EditableUserInfo extends JFrame {
 				}
 				data[i][4] = rs.getString("RENT_DATE").substring(0, 16); // 대여한 날
 				data[i][5] = rs.getString("RENT_RETURN_DATE").substring(0, 16); // 반남마감 날
-				data[i][6] = "N";
+				if(isSuspension()) {
+					data[i][6] = "Y";
+				}
+				else {
+					data[i][6] = "N";
+				}
 				i++;
 			}
 			table.setModel(new DefaultTableModel(data, columns)); // 테이들 다시 세팅
@@ -495,4 +504,52 @@ public class EditableUserInfo extends JFrame {
 			System.out.println("관리자의 유저 정보창에서 SQL 실행 에러");
 		}
 	}
+	// 정지 여부를 확인해주는 함수
+			public boolean isSuspension() {
+				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+				Date returnDate;
+				Date susDate;
+				Date nowDate;
+				try {
+					nowDate = dateFormat.parse(LocalDate.now().toString());
+					try {
+						ResultSet rs1 = dbConn.executeQuery("SELECT USER_SUSPENSION FROM USER WHERE USER_PHONE='" + user_phone + "';");
+						while(rs1.next()) {
+							if(rs1.getString("USER_SUSPENSION") != null) {
+									
+								String s = rs1.getString("USER_SUSPENSION");
+								s.substring(0, 10); // Mysql DATETIME 타입에서 날짜만 가져옴
+								susDate = dateFormat.parse(s);
+								
+								int compare = nowDate.compareTo(susDate); // 현재 날짜와 정지 날짜를 비교하면 compare가 0보다 크다면 정지
+								
+								if (compare > 0) { // 만약 정지 날짜가 현재 날짜보다 뒤에있다면
+									return true;
+								}
+							}
+						}
+						
+						ResultSet rs = dbConn.executeQuery("SELECT RENT_RETURN_DATE FROM RENT WHERE USER_PHONE='" + user_phone
+								+ "' AND RENT_RETURN_YN IS NULL;");
+
+						while (rs.next()) {
+							String s = rs.getString("RENT_RETURN_DATE");
+							s.substring(0, 10); // Mysql DATETIME 타입에서 날짜만 가져옴
+							returnDate = dateFormat.parse(s);
+
+							int compare = nowDate.compareTo(returnDate); // 현재 날짜와 반납 날짜를 비교하면 compare가 0보다 크다면 반납 기한을 지남
+							
+							if (compare > 0) { // 만약 반납 날짜가 현재 날짜를 지났다면
+								return true;
+							}
+						}
+					} catch (SQLException e) {
+						e.printStackTrace();
+						System.out.println("isSuspension sql 오류");
+					}
+				} catch (ParseException e1) {
+					e1.printStackTrace();
+				}
+				return false;
+			}
 }

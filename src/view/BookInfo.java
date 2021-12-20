@@ -50,7 +50,7 @@ public class BookInfo extends JFrame {
 	private JPanel contentPane;
 	int bookReviewCnt = 0;
 	int bookReviewGrade = 0;
-	int bookBorrowCnt = 0;
+	int bookBorrowCnt = 3;
 	int userPoint = 0;
 	boolean userSus = false;
 	long diffDays = 0; // 연체일을 나타내는 변수

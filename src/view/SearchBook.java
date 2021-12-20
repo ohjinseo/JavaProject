@@ -249,8 +249,11 @@ public class SearchBook extends JFrame {
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int row = table.getSelectedRow(); // 선택한 row
-				int col = table.getSelectedColumn(); // 선택한 col
+				int row_index = table.getSelectedRow(); // 선택한 row 
+				int col_index = table.getSelectedColumn(); // 선택한 col 
+				//정렬 되어 보이지만 실제 데이터는 정렬되어 있지 않음
+				int row = table.convertRowIndexToModel(row_index);		// 실제 모델에 저장되어 있는 인덱스 저장
+				int col = table.convertColumnIndexToModel(col_index);	// 실제 모델에 저장되어 있는 인덱스 저장
 				String book_title = table.getModel().getValueAt(row, 0).toString(); // 클릭한 열의 책 제목을 저장
 				String book_ISBN = ""; // 클릭한 책의 ISBN을 저장할 변수
 				try { // DB 접근
@@ -273,7 +276,7 @@ public class SearchBook extends JFrame {
 							try { // DB 접근
 								ResultSet rs = dbConn.executeQuery(
 										"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN FROM BOOK WHERE BOOK_PRE = TRUE;");
-								set_table(rs); // 관리자를 제외한 회원들의 정보로 테이블을 구성
+								set_table(rs);
 							} catch (SQLException e1) {
 								System.out.println("회원검색창 초기 테이블 구성중 SQL 실행 에러");
 							}
@@ -291,8 +294,9 @@ public class SearchBook extends JFrame {
 							e.getWindow().dispose();
 						}
 					});
-
+					
 					bookinfo.setLocationRelativeTo(null); // 화면중앙에 출력
+					bookinfo.setResizable(false); // 창 크기 고정
 					bookinfo.setVisible(true); // 책 정보창 띄움
 				}
 			}
