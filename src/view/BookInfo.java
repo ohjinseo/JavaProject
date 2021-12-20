@@ -209,6 +209,9 @@ public class BookInfo extends JFrame {
 
 		// 책 즐겨찾기 라벨
 		JLabel bookFavoritesLabel = new JLabel("\u2606");
+
+		bookFavoritesLabel.setText(setStar(book_ISBN,user_phone));
+
 		bookFavoritesLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -499,6 +502,29 @@ public class BookInfo extends JFrame {
 			System.out.println("bookRentCnt sql 오류");
 		}
 	}
+	
+	//별 채색여부 설정 함수
+	public String setStar(String ISBN,String phone) {
+
+		String sql = "SELECT * FROM FAVORITES WHERE BOOK_ISBN = '"+ISBN+"' AND USER_PHONE = '"+phone+"';";
+
+		ResultSet rs1=dbConn.executeQuery(sql);
+		try {
+			if(rs1.next()) { //결과가 null이 아닌경우(검색결과가 존재하는 경우)
+				return "★";
+			}
+			else {
+				return "☆";
+			}
+			
+		} catch (SQLException e1) {
+			e1.printStackTrace();
+			return "☆";
+		}	
+	
+	
+	}
+	
 	//즐겨찾기 이벤트 함수
 	public void favorite_event() {
 		String sql = "insert into FAVORITES(\r\n"
@@ -520,9 +546,9 @@ public class BookInfo extends JFrame {
 	}
 	
 	public void favorite_delete_event() {
-		String sql = "delete from FAVORITES(\r\n"
-					+"where FAVORITES.USER_PHONE = "+user_phone+"\r\n"
-					+"and FAVORITES.BOOK_ISBN = "+book_ISBN+"\r\n";
+		String sql = "delete from FAVORITES\r\n"
+					+"where FAVORITES.USER_PHONE = '"+user_phone+"'\r\n"
+					+"and FAVORITES.BOOK_ISBN = '"+book_ISBN+"';\r\n";
 		try { // DB 접근
 			PreparedStatement ps = dbConn.conn.prepareStatement(sql);
 			ps.executeUpdate();
