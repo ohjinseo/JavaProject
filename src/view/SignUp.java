@@ -46,6 +46,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.PreparedStatement;
+import java.sql.PseudoColumnUsage;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.beans.PropertyChangeEvent;
 import javax.swing.JPasswordField;
@@ -270,6 +272,7 @@ public class SignUp extends JFrame {
 		
 		// 남자 라디오버튼
 		JRadioButton manRadioButton = new JRadioButton("\uB0A8\uC790");
+		buttonGroup.add(manRadioButton);
 		manRadioButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) { //클릭했을 떄
@@ -283,6 +286,7 @@ public class SignUp extends JFrame {
 
 		// 여자 라디오버튼
 		JRadioButton womanRadioButton = new JRadioButton("\uC5EC\uC790");
+		buttonGroup.add(womanRadioButton);
 		womanRadioButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) { //클릭했을 떄
@@ -516,6 +520,19 @@ public class SignUp extends JFrame {
 		dupleButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) { //클릭했을 때
+				String userPhone=userPhoneFirstTextField.getText()+userPhoneSecondTextField.getText()+userPhoneThirdTextField.getText();
+				String sql = "select USER_PHONE from USER where USER_PHONE = "+userPhone;
+		
+				ResultSet rs=dbConn.executeQuery(sql);
+				if(rs!=null) { //결과가 null이 아닌경우(검색결과가 존재하는 경우)
+					userPhoneErrorLabel.setText("이미 가입된 회원입니다.");
+					phoneError=true;
+				}
+				else {
+					phoneError=false;
+				}
+			
+			
 			}
 		});
 		dupleButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
@@ -616,13 +633,14 @@ public class SignUp extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if (!nameError&&!birthError&&!sexError&&!phoneError&&!emailError&&!emailDupleError&&!passwordError&&!password2Error) { //에러가 1개라도 없는 경우
 					
+					//전화번호
 					String userPhone=userPhoneFirstTextField.getText()+userPhoneSecondTextField.getText()+userPhoneThirdTextField.getText();
 					
-					if(Integer.parseInt(month)<10)
-						month="0"+month;
-					if(Integer.parseInt(day)<10)
-						day="0"+day;
-					String userBirth=year+"/"+month+"/"+day;
+					if(Integer.parseInt(month)<10) //월숫자 중에서 10미만숫자들
+						month="0"+month; //형식 바꾸기(ex 0 -> 01)
+					if(Integer.parseInt(day)<10) //일숫자 중에서 10미만 숫자들
+						day="0"+day; //형식 바꾸기(ex 0 -> 01)
+					String userBirth=year+"-"+month+"-"+day;
 					
 					String sql = "insert into USER(\r\n"
 							+ "USER_PHONE,\r\n"
@@ -632,23 +650,23 @@ public class SignUp extends JFrame {
 							+ "USER_MAIL,\r\n"
 							+ "USER_IMAGE,\r\n"
 							+ "USER_REG_DATE,\r\n"
-							+ "USER_PW,\r\n"
+							+ "USER_PW\r\n"
 							+ ")values(\r\n"
-							+ "?, ?, date_format("+userBirth+",'%Y-%m-%d'), ?, ?, ?, date_format(now(),'%Y-%m-%d'), ?);";
+							+"?, ?, '"+userBirth+"', ?, ?, ?, now(), ?);";
 					
 				try { // DB 접근
 					PreparedStatement ps = dbConn.conn.prepareStatement(sql);
+	
+					ps.setString(1, userPhone);							//유저 전화번호
+					ps.setString(2, userNameTextField.getText());		//유저 이름
+					ps.setBoolean(3, manRadioButton.isSelected());		//유저 성별
+					ps.setString(4, userEmailTextField.getText());		//유저 이메일
 					
-					ps.setString(1, userPhoneFirstTextField.getText()+userPhoneSecondTextField.getText()+userPhoneThirdTextField.getText());	//유저 휴대전화
-					ps.setString(2, userNameTextField.getText());	//유저 이름
-					ps.setBoolean(3,manRadioButton.isSelected());	//유저 성별
-					ps.setString(4, userEmailTextField.getText());	//유저 이메일주소
-
 					//유저 사진
 					FileInputStream fin = new FileInputStream(filePath);
 					ps.setBinaryStream(5, fin, fin.available());
 					
-					ps.setString(6, userPasswordTextField.getText());	//유저 비밀번호
+					ps.setString(6, userPasswordTextField.getText());	//유저 비번
 					
 					int count = ps.executeUpdate();
 					if(count==0) {	
@@ -660,9 +678,8 @@ public class SignUp extends JFrame {
 				} catch (SQLException e1) {
 					e1.printStackTrace();	//에러 추적
 					System.out.println("회원가입 SQL 실행 에러");
-				}catch(FileNotFoundException e1) {
+				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
-					System.out.println("사진 파일 찾기 에러");
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
