@@ -264,6 +264,7 @@ public class SearchBook extends JFrame {
 						book_ISBN = rs.getString("BOOK_ISBN"); // ISBN 저장
 					}
 				} catch (SQLException e2) {
+					e2.printStackTrace();
 					System.out.println("SQL 실행 에러");
 				}
 				if (manager) {
@@ -274,9 +275,11 @@ public class SearchBook extends JFrame {
 						public void windowClosing(WindowEvent e) {
 							try { // DB 접근
 								ResultSet rs = dbConn.executeQuery(
-										"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN FROM BOOK WHERE BOOK_PRE = TRUE;");
+										"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN, BOOK_GRADE, BOOK_RENT_COUNT, BOOK_APPEND_DATE FROM BOOK WHERE BOOK_PRE = TRUE;");
 								set_table(rs);
+								setTrs();
 							} catch (SQLException e1) {
+								e1.printStackTrace();
 								System.out.println("도서 검색창 테이블 구성중 SQL 실행 에러");
 							}
 							e.getWindow().dispose();
@@ -294,9 +297,11 @@ public class SearchBook extends JFrame {
 						public void windowClosing(WindowEvent e) {
 							try { // DB 접근
 								ResultSet rs = dbConn.executeQuery(
-										"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN FROM BOOK WHERE BOOK_PRE = TRUE;");
+										"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN, BOOK_GRADE, BOOK_RENT_COUNT, BOOK_APPEND_DATE FROM BOOK WHERE BOOK_PRE = TRUE;");
 								set_table(rs);
+								setTrs();
 							} catch (SQLException e1) {
+								e1.printStackTrace();
 								System.out.println("도서 검색창 테이블 구성중 SQL 실행 에러");
 							}
 							e.getWindow().dispose();
@@ -338,6 +343,7 @@ public class SearchBook extends JFrame {
 			set_table(rs);
 			setTrs();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			System.out.println("SQL 실행 에러");
 		}
 
@@ -676,6 +682,7 @@ public class SearchBook extends JFrame {
 			else // 없으면
 				System.out.println("검색결과가 없습니다.");
 		} catch (SQLException e2) {
+			e2.printStackTrace();
 			System.out.println("SQL 실행 에러");
 		}
 	}
@@ -743,6 +750,7 @@ public class SearchBook extends JFrame {
 			table.removeColumn(table.getColumnModel().getColumn(5));
 			table.removeColumn(table.getColumnModel().getColumn(5));
 		} catch (SQLException e) {
+			e.printStackTrace();
 			System.out.println("SQL 실행 에러");
 		}
 	}

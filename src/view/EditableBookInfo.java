@@ -96,7 +96,7 @@ public class EditableBookInfo extends JFrame {
 					} else if (false) // 대출 실패 했을 때(대출 가능 도서수 초과)
 						JOptionPane.showMessageDialog(null, "대출 가능한 도서수를 초과하였습니다.\n다른 도서를 반납 후 다시 시도해 주세요.", "대출실패",
 								JOptionPane.WARNING_MESSAGE);
-					else // 남은 경우(대출 실패 했을 떄(연체된 책 존재))
+					else // 남은 경우(대출 실패 했을 떄(연체된 책 존재))m	m	m
 						JOptionPane.showMessageDialog(null, "연체된 책이 있습니다.\n나중에 다시 시도해 주세요.", "대출실패",
 								JOptionPane.WARNING_MESSAGE);
 				} else if (bookBorrowButton.getText().equals("반납하기")) // 반납하기 버튼 상태일 때
@@ -130,23 +130,33 @@ public class EditableBookInfo extends JFrame {
 				String sql = "UPDATE BOOK\r\n"
 						+ "SET BOOK_PRE = FALSE\r\n"
 						+ "WHERE BOOK_ISBN = ?;";
-
-				try { // DB 접근
-					PreparedStatement ps = dbConn.conn.prepareStatement(sql);
-
-					ps.setString(1, book_ISBN);	//도서 PK
+				
+				try {
+					ResultSet rs2 = dbConn.executeQuery("SELECT BOOK_ISBN FROM RENT WHERE BOOK_ISBN = '"
+							+ book_ISBN + "' AND RENT_RETURN_YN IS NULL;");
 					
-					int count = ps.executeUpdate();
-					if (count == 0) {
-						JOptionPane.showMessageDialog(null, "도서 삭제에 실패하였습니다.", "도서 삭제 실패",
+					if (rs2.next()) {
+						System.out.println(rs2.getString("BOOK_ISBN"));
+						System.out.println("안녕");
+						JOptionPane.showMessageDialog(null, "대여중인 도서입니다.", "도서 삭제 실패",
 								JOptionPane.ERROR_MESSAGE);
 					} else {
-						JOptionPane.showMessageDialog(null, "도서 삭제에 성공하였습니다.", "도서 삭제 성공",
-								JOptionPane.NO_OPTION);
+						PreparedStatement ps = dbConn.conn.prepareStatement(sql);
+
+						ps.setString(1, book_ISBN);	//도서 PK
+						
+						int count = ps.executeUpdate();
+						if (count == 0) {
+							JOptionPane.showMessageDialog(null, "도서 삭제에 실패하였습니다.", "도서 삭제 실패",
+									JOptionPane.ERROR_MESSAGE);
+						} else {
+							JOptionPane.showMessageDialog(null, "도서 삭제에 성공하였습니다.", "도서 삭제 성공",
+									JOptionPane.NO_OPTION);
+						}
 					}
 				} catch (SQLException e1) {
 					e1.printStackTrace(); // 에러 추적
-					System.out.println("도서삭제 에서 SQL 실행 에러");
+					System.out.println("회원탈퇴 과정에서 SQL 실행 에러");
 				}
 			}
 		});
@@ -319,7 +329,8 @@ public class EditableBookInfo extends JFrame {
 				bookDescriptionLabel.setEnabled(false); // 도서 설명
 			}
 		} catch (SQLException e2) {
-			System.out.println("SQL 실행 에러");
+			e2.printStackTrace();
+			System.out.println("EditbalBookInfo SQL 실행 에러");
 		}
 		
 		//책 평점 매기기
