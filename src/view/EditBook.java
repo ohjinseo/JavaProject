@@ -57,7 +57,7 @@ public class EditBook extends JFrame {
 	private JTextField bookISBNTextField;
 	private JTextField bookLinkTextField;
 	private JTextArea bookDescriptionTextField;
-
+	EditableBookInfo bookinfo;
 	/**
 	 * Launch the application.
 	 */
@@ -65,10 +65,11 @@ public class EditBook extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	public EditBook(String book_ISBN, String user_phone, Boolean manager) {
+	public EditBook(String book_ISBN, String user_phone, Boolean manager, EditableBookInfo bookinfo) {
 		this.user_phone = user_phone;
 		this.manager = manager;
 		this.book_ISBN = book_ISBN;
+		this.bookinfo = bookinfo;
 		setTitle("\uB3C4\uC11C \uAD00\uB9AC \uD504\uB85C\uADF8\uB7A8 - \uB3C4\uC11C\uC218\uC815");
 		setBounds(100, 100, 848, 681);
 		contentPane = new JPanel();
@@ -101,7 +102,7 @@ public class EditBook extends JFrame {
 		panel.add(book_img_path);
 
 		// 책 이미지 찾기 버튼
-		JButton bookImageFindButton = new JButton("\uCC3E\uC544\uBCF4\uAE30");
+		JButton bookImageFindButton = new JButton("찾아보기");
 
 		bookImageFindButton.addMouseListener(new MouseAdapter() { // 클릭이벤트
 			@Override
@@ -123,10 +124,30 @@ public class EditBook extends JFrame {
 					bookPictureLabel.setIcon(icon); // 책 사진 레이블에 이미지 부착
 					bookPictureLabel.setBorder(new LineBorder(Color.black, 1, false)); // 레이블 테두리 검은색으로 그려줌
 
+					String sql = "UPDATE BOOK SET BOOK_IMAGE = ? WHERE BOOK_ISBN = ?;";
+					PreparedStatement ps = dbConn.conn.prepareStatement(sql);
+					
+					// 유저 이미지
+					FileInputStream fin = new FileInputStream(book_img_path.getText());
+					ps.setBinaryStream(1, fin, fin.available());
+					ps.setString(2, book_ISBN);
+
+					int count = ps.executeUpdate();
+					if (count == 0) {
+						JOptionPane.showMessageDialog(null, "도서 이미지 수정에 실패하였습니다.", "도서 이미지 수정 실패",
+								JOptionPane.ERROR_MESSAGE);
+					} else {
+						JOptionPane.showMessageDialog(null, "도서 이미지 수정에 성공하였습니다.", "도서 이미지 수정 성공",
+								JOptionPane.NO_OPTION);
+					}
+					
+				} catch (SQLException e1) {
+					e1.printStackTrace(); // 에러 추적
+					System.out.println("도서 수정 화면에서 SQL 실행 에러");
 				} catch (FileNotFoundException e1) {
-					System.out.println("도서추가 화면에서 파일 찾기 에러");
+					System.out.println("도서 수정 화면에서 파일 찾기 에러");
 				} catch (IOException e1) {
-					System.out.println("도서추가 화면에서 읽어온 파일 출력 에러");
+					System.out.println("도서 수정 화면에서 읽어온 파일 출력 에러");
 				}
 			}
 		});
@@ -275,11 +296,35 @@ public class EditBook extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				//수정 내용 저장할 sql문 작성해야함
-				
-				EditableBookInfo manager_book_info = new EditableBookInfo(book_ISBN, user_phone, manager);
-				manager_book_info.setLocationRelativeTo(null); // 화면중앙에 출력
-				manager_book_info.setVisible(true); // 책 정보창 띄움
+				String sql = "UPDATE BOOK\r\n"
+						+ "SET BOOK_TITLE = ?, BOOK_AUTHOR = ?, BOOK_PUB = ?, BOOK_PRICE = ?, BOOK_ISBN = ?, BOOK_LINK = ?, BOOK_DESCRIPTION = ?\r\n"
+						+ "WHERE BOOK_ISBN = ?;";
+
+				try { // DB 접근
+					PreparedStatement ps = dbConn.conn.prepareStatement(sql);
+
+					ps.setString(1, bookNameTextField.getText()); // 제목
+					ps.setString(2, bookHeaderTextField_1.getText()); // 저자
+					ps.setString(3, bookHeaderTextField_2.getText()); // 출판사
+					ps.setString(4, bookPriceTextField.getText()); // 가격
+					ps.setString(5, bookISBNTextField.getText()); // ISBN
+					ps.setString(6, bookLinkTextField.getText()); // 관련링크
+					ps.setString(7, bookDescriptionTextField.getText());	//줄거리
+					ps.setString(8, book_ISBN);	//도서 PK
+					
+					int count = ps.executeUpdate();
+					if (count == 0) {
+						JOptionPane.showMessageDialog(null, "도서 수정에 실패하였습니다.", "도서 수정 실패",
+								JOptionPane.ERROR_MESSAGE);
+					} else {
+						JOptionPane.showMessageDialog(null, "도서 수정에 성공하였습니다.", "도서 수정 성공",
+								JOptionPane.NO_OPTION);
+					}
+				} catch (SQLException e1) {
+					e1.printStackTrace(); // 에러 추적
+					System.out.println("도서수정 에서 SQL 실행 에러");
+				}
+				bookinfo.dispose();
 				dispose();
 			}
 		});

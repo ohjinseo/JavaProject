@@ -22,6 +22,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -41,7 +42,7 @@ public class EditableBookInfo extends JFrame {
 	String book_ISBN = "";
 	String user_phone = "";
 	Boolean manager = false;
-	int bookReviewCnt = 0;	
+	int bookReviewCnt = 0;
 	int bookReviewGrade = 0;
 	private JPanel contentPane;
 
@@ -56,6 +57,7 @@ public class EditableBookInfo extends JFrame {
 		this.book_ISBN = book_ISBN;
 		this.user_phone = user_phone;
 		this.manager = manager;
+		EditBook edit_book_frame = new EditBook(book_ISBN,user_phone,manager,this);
 		
 		setTitle("\uB3C4\uC11C \uAD00\uB9AC \uD504\uB85C\uADF8\uB7A8 - \uB3C4\uC11C\uC815\uBCF4");
 		setBounds(100, 100, 848, 681);
@@ -120,7 +122,36 @@ public class EditableBookInfo extends JFrame {
 		JButton bookDeleteButton_1_1 = new JButton("\uC0AD\uC81C");
 		bookDeleteButton_1_1.setFont(new Font("한컴산뜻돋움", Font.BOLD, 15));
 		bookDeleteButton_1_1.setBounds(92, 210, 77, 19);
+		bookDeleteButton_1_1.addMouseListener(new MouseAdapter() {
+			// 삭제하기 버튼을 클릭했을 때
+			@Override
+			public void mouseClicked(MouseEvent e) {
+
+				String sql = "UPDATE BOOK\r\n"
+						+ "SET BOOK_PRE = FALSE\r\n"
+						+ "WHERE BOOK_ISBN = ?;";
+
+				try { // DB 접근
+					PreparedStatement ps = dbConn.conn.prepareStatement(sql);
+
+					ps.setString(1, book_ISBN);	//도서 PK
+					
+					int count = ps.executeUpdate();
+					if (count == 0) {
+						JOptionPane.showMessageDialog(null, "도서 삭제에 실패하였습니다.", "도서 삭제 실패",
+								JOptionPane.ERROR_MESSAGE);
+					} else {
+						JOptionPane.showMessageDialog(null, "도서 삭제에 성공하였습니다.", "도서 삭제 성공",
+								JOptionPane.NO_OPTION);
+					}
+				} catch (SQLException e1) {
+					e1.printStackTrace(); // 에러 추적
+					System.out.println("도서삭제 에서 SQL 실행 에러");
+				}
+			}
+		});
 		panel.add(bookDeleteButton_1_1);
+		
 
 		// 책 정보 패널
 		JPanel panel_1 = new JPanel();
@@ -226,11 +257,10 @@ public class EditableBookInfo extends JFrame {
 			// 수정하기 버튼을 클릭했을 때
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				EditBook edit_book_frame = new EditBook(book_ISBN,user_phone,manager);
 
 				edit_book_frame.setLocationRelativeTo(null); // 화면중앙에 출력
+				edit_book_frame.setResizable(false); // 창 크기 고정
 				edit_book_frame.setVisible(true); // 책 정보창 띄움
-				setVisible(false);
 			}
 		});
 		panel.add(bookEditButton);
