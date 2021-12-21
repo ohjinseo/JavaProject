@@ -275,7 +275,39 @@ public class Main extends JFrame {
 		favoriteBookPanel.setBackground(Color.WHITE);
 		favoriteBookPanel.setBorder(new LineBorder(new Color(128, 128, 128), 2, true));
 		favoriteBookPanel.setBounds(22, 502, 820, 125);
-		contentPane.add(favoriteBookPanel);
+		favoriteBookPanel.setLayout(null);
+		
+		JLabel[] favorite_BookLabel_array = new JLabel[6];
+		// 패널에 출력할 책 이미지를 담을 Label 6개 생성
+		JLabel favorite_img1 = new JLabel("");
+		favorite_img1.setBounds(12, 10, 105, 105);
+		favoriteBookPanel.add(favorite_img1);
+		favorite_BookLabel_array[0] = favorite_img1;
+
+		JLabel favorite_img2 = new JLabel("");
+		favorite_img2.setBounds(150, 10, 105, 105);
+		favoriteBookPanel.add(favorite_img2);
+		favorite_BookLabel_array[1] = favorite_img2;
+
+		JLabel favorite_img3 = new JLabel("");
+		favorite_img3.setBounds(288, 10, 105, 105);
+		favoriteBookPanel.add(favorite_img3);
+		favorite_BookLabel_array[2] = favorite_img3;
+
+		JLabel favorite_img4 = new JLabel("");
+		favorite_img4.setBounds(426, 10, 105, 105);
+		favoriteBookPanel.add(favorite_img4);
+		favorite_BookLabel_array[3] = favorite_img4;
+
+		JLabel favorite_img5 = new JLabel("");
+		favorite_img5.setBounds(564, 10, 105, 105);
+		favoriteBookPanel.add(favorite_img5);
+		favorite_BookLabel_array[4] = favorite_img5;
+
+		JLabel favorite_img6 = new JLabel("");
+		favorite_img6.setBounds(703, 10, 105, 105);
+		favoriteBookPanel.add(favorite_img6);
+		favorite_BookLabel_array[5] = favorite_img6;
 
 		try { // DB 접근
 			ResultSet rs;
@@ -285,14 +317,28 @@ public class Main extends JFrame {
 			append_img(rs, popularBookLabel_array); // 인기순으로 상위 6개의 이미지를 인기순 패널의 popularBookLabel에 삽입
 
 			contentPane.add(popularBookPanel); // 컨텐트팬에 인기순 패널 부착
-			System.out.println("속도확인1");
+			System.out.println("인기순 출력");
+			
 			rs = dbConn.executeQuery(
 					"SELECT BOOK_ISBN, BOOK_IMAGE FROM BOOK WHERE BOOK_PRE = TRUE\r\n" + "order by BOOK_APPEND_DATE DESC;"); // 최신순으로
 																													// 정렬
 
-			append_img(rs, newlyBookLabel_array); // 인기순으로 상위 6개의 이미지를 인기순 패널의 popularBookLabel에 삽입
-
+			append_img(rs, newlyBookLabel_array); // 최신순으로 상위 6개의 이미지를 인기순 패널의 popularBookLabel에 삽입
 			contentPane.add(newlyBookPanel);
+			System.out.println("최신순 출력");
+
+			rs = dbConn.executeQuery(
+					"SELECT BOOK_ISBN, BOOK_IMAGE\r\n"
+					+ "FROM BOOK\r\n"
+					+ "WHERE BOOK.BOOK_ISBN IN(\r\n"
+					+ "SELECT FAVORITES.BOOK_ISBN\r\n"
+					+ "FROM FAVORITES\r\n"
+					+ "WHERE FAVORITES.USER_PHONE ='"+user_phone+"'\r\n"
+					+ "GROUP BY FAVORITES.BOOK_ISBN);"); // 즐겨찾기 한 도서
+																													// 정렬
+			append_img(rs, favorite_BookLabel_array); //  즐겨찾기 6개의 이미지를 인기순 패널의 popularBookLabel에 삽입
+			contentPane.add(favoriteBookPanel);
+			System.out.println("즐겨찾기 출력");
 			
 
 		} catch (SQLException e2) {
@@ -313,7 +359,7 @@ public class Main extends JFrame {
 				Image resize_img = img.getScaledInstance(105, 105, Image.SCALE_SMOOTH); // 이미지 크기 105x105로 크기 조절하여
 																						// resize_img에 저장
 				ImageIcon icon = new ImageIcon(resize_img); // 조절한 크기의 이미지를 icon에 저장
-				array[i].setIcon(icon); // 인기순 패널에 icon 차례로 저장
+				array[i].setIcon(icon); // 패널에 icon 차례로 저장
 				array[i].setBorder(new LineBorder(Color.black, 1, false)); // 레이블 테두리 검은색으로 그려줌
 			} catch (IOException e) {
 				e.printStackTrace();

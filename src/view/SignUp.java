@@ -29,6 +29,13 @@ import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.DefaultComboBoxModel;
 import javax.imageio.ImageIO;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.swing.ButtonGroup;
 import java.awt.SystemColor;
 import java.awt.event.ItemListener;
@@ -36,6 +43,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Properties;
+import java.util.Random;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.KeyAdapter;
@@ -52,6 +61,14 @@ import java.sql.SQLException;
 import java.beans.PropertyChangeEvent;
 import javax.swing.JPasswordField;
 
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.PasswordAuthentication;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
+
 public class SignUp extends JFrame {
 	dbConnector dbConn = new dbConnector();
 	
@@ -61,7 +78,9 @@ public class SignUp extends JFrame {
 	// 프레임 변수
 	private Main mainFrame;
 	private SearchBook searchBookFrame;
-
+	
+	int verification_code = 0;	//메일로 발송할 인증코드
+	Random rand  =new Random();	//인증코드 생성에 사용될 난수
 	/**
 	 * Launch the application.
 	 */
@@ -448,7 +467,7 @@ public class SignUp extends JFrame {
 				"\uC62C\uBC14\uB978 \uC774\uBA54\uC77C\uC744 \uC785\uB825\uD558\uC138\uC694.");
 		userEmailErrorLabel.setForeground(Color.RED);
 		userEmailErrorLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 14));
-		userEmailErrorLabel.setBounds(356, 172, 249, 30);
+		userEmailErrorLabel.setBounds(464, 172, 187, 30);
 		panel.add(userEmailErrorLabel);
 
 		// 유저 이메일 텍스트필드
@@ -577,13 +596,67 @@ public class SignUp extends JFrame {
 		panel.add(dupleButton);
 
 		// 유저 이메일 중복확인 에러 라벨
-		JLabel userEmailDupleTextErrorLabel = new JLabel(
-				"\uD2C0\uB9B0 \uCF54\uB4DC\uC785\uB2C8\uB2E4. \uB2E4\uC2DC \uD655\uC778\uD574\uC8FC\uC138\uC694.");
+		JLabel userEmailDupleTextErrorLabel = new JLabel("코드를 입력해 주세요.");
 		userEmailDupleTextErrorLabel.setForeground(Color.RED);
 		userEmailDupleTextErrorLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 14));
 		userEmailDupleTextErrorLabel.setBounds(356, 214, 249, 30);
 		panel.add(userEmailDupleTextErrorLabel);
+		
+		// 유저 이메일 인증코드 발송 버튼
+		JButton get_verification_Button = new JButton("코드 받기");
+		get_verification_Button.setFont(new Font("Dialog", Font.PLAIN, 12));
+		get_verification_Button.setBounds(361, 172, 91, 32);
+		panel.add(get_verification_Button);
+		get_verification_Button.addMouseListener(new MouseAdapter() {	
+			//코드받기 버튼 클릭시 호출되는 리스너
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				//메일을 보내는 쪽의 정보
+				String host	="smtp.naver.com";	//호스트 네이버로 설정
+				final String user = /*아이디*/;	//메일을 보낼 네이버 아이디
+				final String password = /*비밀번호*/;	//메일을 보낼 네이버 비밀번호
+				int port = 587;	//포트번호		네이버는 465라뜨던데 안되고 587해야 됨
+				
+				//메일을 받을 주소
+				String to = userEmailTextField.getText();
+				
+				Properties	props = System.getProperties();
+				props.put("mail.smtp.host", host);
+				props.put("mail.smtp.auth", "true");
+				props.put("mail.smtp.port", port);
+				props.put("mail.smptp.ssl.enable", "true");
+				props.put("mail.smtp.ssl.trust", host);
+				
+				Session session = Session.getDefaultInstance(props,new javax.mail.Authenticator() {
+					protected PasswordAuthentication getPasswordAuthentication() {
+						return new PasswordAuthentication(user, password);
+					}
+				});
+				session.setDebug(true);
+				
+				verification_code = rand.nextInt(10000);	//0<= code <10000 난수 발생
 
+				//메세지 작성
+				try {
+					MimeMessage message = new MimeMessage(session);
+					message.setFrom(new InternetAddress("hoo9902@naver.com"));	//보내는 사람의 메일
+					message.setRecipient(Message.RecipientType.TO, new InternetAddress(to));	//받을 사람의 메일
+					
+					//제목
+					message.setSubject("자바 프로젝트 인증코드 발송");
+					
+					//내용
+					message.setText("인증코드 : "+verification_code);
+					
+					Transport.send(message);
+					JOptionPane.showMessageDialog(null, "인증코드가 발송되었습니다.", "인증코드 발송 안내", JOptionPane.INFORMATION_MESSAGE);
+				}catch(MessagingException e1) {
+					System.out.println("회원가입 메일로 메시지 인증코드 발송 과정에서 오류발생");
+					e1.printStackTrace();
+				}
+			}
+		});
+		
 		// 유저 이메일 중복코드 텍스트필드
 		userEmailDupleTextField = new JTextField();
 		userEmailDupleTextField.addKeyListener(new KeyAdapter() {
@@ -592,15 +665,19 @@ public class SignUp extends JFrame {
 				if (userEmailDupleTextField.getText().equals("")) {
 					userEmailDupleTextErrorLabel.setText("코드를 입력해 주세요."); // 오류 있는경우(빈칸임) 오류출력
 					emailDupleError=true; //이메일 중복 에러O
-				} else if (!userEmailDupleTextField.getText().equals("0000")) {
-					userEmailDupleTextErrorLabel.setText("틀린 코드입니다. 다시 확인해주세요."); // 오류 있는경우(코드가 같지않음) 오류출력
-					emailDupleError=true; //이메일 중복 에러O
-				} else {
+				} 
+				//0000이거나 이메일로 발송된 난수이면 
+				else if (userEmailDupleTextField.getText().equals("0000")||userEmailDupleTextField.getText().equals(Integer.toString(verification_code))) {
 					userEmailDupleTextErrorLabel.setText(""); // 오류 없는경우 - 오류출력X
 					emailDupleError=false; //이메일 중복 에러X
+				}  
+				else {
+					userEmailDupleTextErrorLabel.setText("틀린 코드입니다. 다시 확인해주세요."); // 오류 있는경우(코드가 같지않음) 오류출력
+					emailDupleError=true; //이메일 중복 에러O
 				}
 			}
 		});
+		
 		userEmailDupleTextField.setHorizontalAlignment(SwingConstants.CENTER);
 		userEmailDupleTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		userEmailDupleTextField.setColumns(10);
@@ -747,11 +824,13 @@ public class SignUp extends JFrame {
 				} else { //에러가 1개라도 있는 경우
 					JOptionPane.showMessageDialog(null, "회원가입에 실패하였습니다...", "회원가입", JOptionPane.ERROR_MESSAGE);
 				}
+				dispose();
 			}
 		});
 		singUpButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		singUpButton.setBounds(105, 475, 91, 32);
 		panel.add(singUpButton);
+		
 
 	}
 }

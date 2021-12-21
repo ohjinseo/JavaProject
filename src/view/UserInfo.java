@@ -753,7 +753,7 @@ public class UserInfo extends JFrame {
 				}
 				data[i][4] = rs.getString("RENT_DATE").substring(0, 16); // 대여한 날
 				data[i][5] = rs.getString("RENT_RETURN_DATE").substring(0, 16); // 반남마감 날
-				if(isSuspension()) {
+				if(isSuspension(book_ISBN)) {
 					data[i][6] = "Y";
 				}
 				else {
@@ -768,7 +768,7 @@ public class UserInfo extends JFrame {
 		
 	}
 	// 정지 여부를 확인해주는 함수
-		public boolean isSuspension() {
+		public boolean isSuspension(String book_ISBN) {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			Date returnDate;
 			Date susDate;
@@ -776,24 +776,9 @@ public class UserInfo extends JFrame {
 			try {
 				nowDate = dateFormat.parse(LocalDate.now().toString());
 				try {
-					ResultSet rs1 = dbConn.executeQuery("SELECT USER_SUSPENSION FROM USER WHERE USER_PHONE='" + user_phone + "';");
-					while(rs1.next()) {
-						if(rs1.getString("USER_SUSPENSION") != null) {
-								
-							String s = rs1.getString("USER_SUSPENSION");
-							s.substring(0, 10); // Mysql DATETIME 타입에서 날짜만 가져옴
-							susDate = dateFormat.parse(s);
-							
-							int compare = nowDate.compareTo(susDate); // 현재 날짜와 정지 날짜를 비교하면 compare가 0보다 크다면 정지
-							
-							if (compare > 0) { // 만약 정지 날짜가 현재 날짜보다 뒤에있다면
-								return true;
-							}
-						}
-					}
-					
+				
 					ResultSet rs = dbConn.executeQuery("SELECT RENT_RETURN_DATE FROM RENT WHERE USER_PHONE='" + user_phone
-							+ "' AND RENT_RETURN_YN IS NULL;");
+							+ "' AND BOOK_ISBN='"+book_ISBN+"' AND RENT_RETURN_YN IS NULL;");
 
 					while (rs.next()) {
 						String s = rs.getString("RENT_RETURN_DATE");

@@ -155,6 +155,7 @@ public class Login extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				findIdFrame = new FindId();
+				findIdFrame.setLocationRelativeTo(null); // 화면중앙에 출력
 				findIdFrame.setVisible(true);
 
 			}
@@ -168,6 +169,7 @@ public class Login extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				findPasswordFrame = new FindPassword();
+				findPasswordFrame.setLocationRelativeTo(null); // 화면중앙에 출력
 				findPasswordFrame.setVisible(true);
 
 			}
@@ -181,6 +183,7 @@ public class Login extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				signUpFrame = new SignUp();
+				signUpFrame.setLocationRelativeTo(null); // 화면중앙에 출력
 				signUpFrame.setVisible(true);
 
 			}
