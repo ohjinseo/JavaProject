@@ -16,7 +16,7 @@ public class dbConnector {
 		try { // DB 접근
 			Class.forName("com.mysql.cj.jdbc.Driver");
 			conn = DriverManager.getConnection("jdbc:mysql://jdb.deu.monster:60001/j20183026",
-					"20183026", /*비번입력*/);
+					"20183026", /*비번입력*/");
 			System.out.println("DB 연결 완료");
 			stmt = conn.createStatement();
 			

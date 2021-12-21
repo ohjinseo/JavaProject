@@ -272,18 +272,19 @@ public class SearchBook extends JFrame {
 					manager_book_info.addWindowListener(new WindowAdapter() {
 						@Override
 						public void windowClosing(WindowEvent e) {
-							e.getWindow().dispose();
 							try { // DB 접근
 								ResultSet rs = dbConn.executeQuery(
 										"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN FROM BOOK WHERE BOOK_PRE = TRUE;");
 								set_table(rs);
 							} catch (SQLException e1) {
-								System.out.println("회원검색창 초기 테이블 구성중 SQL 실행 에러");
+								System.out.println("도서 검색창 테이블 구성중 SQL 실행 에러");
 							}
+							e.getWindow().dispose();
 						}
 					});
 
 					manager_book_info.setLocationRelativeTo(null); // 화면중앙에 출력
+					manager_book_info.setResizable(false); // 창 크기 고정
 					manager_book_info.setVisible(true); // 책 정보창 띄움
 				} else {
 					BookInfo bookinfo = new BookInfo(book_ISBN, user_phone); // 책 정보창 객체 생성 (매개변수 : 클릭한 책의 ISBN)
@@ -291,6 +292,13 @@ public class SearchBook extends JFrame {
 					bookinfo.addWindowListener(new WindowAdapter() {
 						@Override
 						public void windowClosing(WindowEvent e) {
+							try { // DB 접근
+								ResultSet rs = dbConn.executeQuery(
+										"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN FROM BOOK WHERE BOOK_PRE = TRUE;");
+								set_table(rs);
+							} catch (SQLException e1) {
+								System.out.println("도서 검색창 테이블 구성중 SQL 실행 에러");
+							}
 							e.getWindow().dispose();
 						}
 					});

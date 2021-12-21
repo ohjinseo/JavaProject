@@ -613,8 +613,8 @@ public class SignUp extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				//메일을 보내는 쪽의 정보
 				String host	="smtp.naver.com";	//호스트 네이버로 설정
-				final String user = /*아이디*/;	//메일을 보낼 네이버 아이디
-				final String password = /*비밀번호*/;	//메일을 보낼 네이버 비밀번호
+				final String user = "";	//메일을 보낼 네이버 아이디
+				final String password = "";	//메일을 보낼 네이버 비밀번호
 				int port = 587;	//포트번호		네이버는 465라뜨던데 안되고 587해야 됨
 				
 				//메일을 받을 주소
