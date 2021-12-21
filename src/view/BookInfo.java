@@ -55,6 +55,7 @@ public class BookInfo extends JFrame {
 	int userPoint = 0;
 	boolean userSus = false;
 	long diffDays = 0; // 연체일을 나타내는 변수
+	ReviewPanel[] review;
 
 	/**
 	 * Launch the application.
@@ -257,18 +258,20 @@ public class BookInfo extends JFrame {
 		panel_3.setBounds(12, 435, 805, 189);
 		contentPane.add(panel_3);
 		panel_3.setLayout(null);
-		ReviewPanel review = new ReviewPanel();
-		review.setSize(805, 65);
-		review.setLocation(0, 0);
-		panel_3.add(review);
+		
+		review = new ReviewPanel[3];
+		review[0] = new ReviewPanel();
+		review[0].setSize(805, 65);
+		review[0].setLocation(0, 0);
+		panel_3.add(review[0]);
 
-		ReviewPanel review_1 = new ReviewPanel();
-		review_1.setBounds(0, 63, 805, 65);
-		panel_3.add(review_1);
+		review[1] = new ReviewPanel();
+		review[1].setBounds(0, 63, 805, 65);
+		panel_3.add(review[1]);
 
-		ReviewPanel review_2 = new ReviewPanel();
-		review_2.setBounds(0, 124, 805, 65);
-		panel_3.add(review_2);
+		review[2] = new ReviewPanel();
+		review[2].setBounds(0, 124, 805, 65);
+		panel_3.add(review[2]);
 
 		JSeparator separator = new JSeparator();
 		separator.setBounds(12, 63, -31, 2);
@@ -374,7 +377,7 @@ public class BookInfo extends JFrame {
 			bookGradeLabel.setText("★★★★★");
 			break;
 		}
-
+		getUserReview();
 	}
 
 	// 유저의 정지 여부를 업데이트 하는 함수
@@ -573,6 +576,30 @@ public class BookInfo extends JFrame {
 			System.out.println("updateBookReturn sql 오류");
 		}
 
+	}
+	
+	public void getUserReview() {
+		ResultSet rs = dbConn.executeQuery("SELECT USER_PHONE, REVIEW_TEXT, BOOK_GRADE FROM REVIEW WHERE BOOK_ISBN = '" + book_ISBN + "';");
+		int i = 0;
+		try {
+			while(rs.next() && i < 3) {
+				
+				String reviewUserPhone = rs.getString("USER_PHONE");
+				String reviewUserName = "";
+				System.out.println();
+				ResultSet rs2 = dbConn.executeQuery(
+						"SELECT USER_NAME FROM USER\r\n"
+								+ "WHERE USER_PHONE = '" + reviewUserPhone + "';");
+				
+				if(rs2.next()) {
+					reviewUserName = rs2.getString("USER_NAME");
+				}
+				review[i++].addProperty(reviewUserName, rs.getInt("BOOK_GRADE"), rs.getString("REVIEW_TEXT"));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }

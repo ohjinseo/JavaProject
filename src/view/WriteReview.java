@@ -200,14 +200,16 @@ public class WriteReview extends JFrame {
 					String sql = "insert into REVIEW(\r\n"
 							+ "BOOK_ISBN,\r\n"
 							+ "USER_PHONE,\r\n"
-							+ "REVIEW_TEXT\r\n"
+							+ "REVIEW_TEXT,\r\n"
+							+ "BOOK_GRADE\r\n"
 							+ ")values(\r\n"
-							+ "?, ?, ?);";
+							+ "?, ?, ?, ?);";
 					PreparedStatement ps = dbConn.conn.prepareStatement(sql);
 					
 					ps.setString(1, book_ISBN);
 					ps.setString(2,  user_phone);
 					ps.setString(3,  ReviewTextArea.getText());
+					ps.setInt(4, starCnt);
 					
 					int count = ps.executeUpdate();
 					if(count==0) {	

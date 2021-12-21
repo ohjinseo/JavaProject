@@ -529,6 +529,42 @@ public class UserInfo extends JFrame {
 		panel_1.add(scrollPane);
 
 		table = new JTable();
+		
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int row_index = table.getSelectedRow(); // 선택한 row 
+				//정렬 되어 보이지만 실제 데이터는 정렬되어 있지 않음
+				int row = table.convertRowIndexToModel(row_index);		// 실제 모델에 저장되어 있는 인덱스 저장
+				String book_title = table.getModel().getValueAt(row, 0).toString(); // 클릭한 열의 책 제목을 저장
+				String book_ISBN = ""; // 클릭한 책의 ISBN을 저장할 변수
+				try { // DB 접근
+
+					ResultSet rs = dbConn.executeQuery("SELECT BOOK_ISBN\r\n" + "FROM BOOK\r\n" + "WHERE BOOK_TITLE ='"
+							+ book_title + "' AND BOOK_PRE = TRUE;"); // DB에서 책 제목으로 ISBN 검색
+					while (rs.next()) {
+						book_ISBN = rs.getString("BOOK_ISBN"); // ISBN 저장
+					}
+				} catch (SQLException e2) {
+					System.out.println("SQL 실행 에러");
+				}
+
+					BookInfo bookinfo = new BookInfo(book_ISBN, user_phone); // 책 정보창 객체 생성 (매개변수 : 클릭한 책의 ISBN)
+					// 책정보창에서 창을 닫으면 호출되는 메소드
+					bookinfo.addWindowListener(new WindowAdapter() {
+						@Override
+						public void windowClosing(WindowEvent e) {
+							e.getWindow().dispose();
+						}
+					});
+					
+					bookinfo.setLocationRelativeTo(null); // 화면중앙에 출력
+					bookinfo.setResizable(false); // 창 크기 고정
+					bookinfo.setVisible(true); // 책 정보창 띄움
+				}
+			
+		});
+		
 		String[] columns = { "제목", "저자", "출판사", "카테고리", "대출일", "반납일", "연체여부" }; // 테이블의 구성
 		table.setModel(new DefaultTableModel(null, columns));
 		scrollPane.setViewportView(table);
