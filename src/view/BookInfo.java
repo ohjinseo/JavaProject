@@ -58,6 +58,7 @@ public class BookInfo extends JFrame {
 	long diffDays = 0; // 연체일을 나타내는 변수
 	ReviewPanel[] review;
 	JLabel bookGradeLabel;
+	Date susDate = null;
 
 	/**
 	 * Launch the application.
@@ -99,13 +100,14 @@ public class BookInfo extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 
+				if (isSuspension()) { // 만약 연체 유저라면
+					userSus = true;
+				} else { // 만약 연체 유저가 아니거나 정지일이 지난 유저라면
+					updateUserSuspension(0);
+				}
+				
 				if (bookBorrowButton.getText().equals("대출하기")) // 대출하기 버튼 상태일 때
 				{
-					if (isSuspension()) { // 만약 연체 유저라면
-						userSus = true;
-					} else { // 만약 연체 유저가 아니거나 정지일이 지난 유저라면
-						updateUserSuspension(0);
-					}
 
 					if ((userPoint < 50 && bookBorrowCnt < 3 || userPoint >= 50 && bookBorrowCnt < 5) && !userSus) // 대출성공했을때
 																													
@@ -408,7 +410,7 @@ public class BookInfo extends JFrame {
 																														// 업데이트
 		} else {
 			Date now = new Date();
-
+			
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(now); // 현재 유저가 접속한 날짜를 기준으로 정지일을 추가시킴.
 			cal.add(Calendar.DATE, day);
@@ -419,12 +421,10 @@ public class BookInfo extends JFrame {
 			sql = "update USER\r\n" + "SET USER_POINT = USER_POINT-5, USER_SUSPENSION = '" + diffTime + "'\r\n"
 					+ "WHERE USER_PHONE = '" + user_phone + "';"; // 해당 유저의 정지일을 업데이트시키고 포인트 5점을 깎음.
 
-			sql = "update USER SET USER_POINT = USER_POINT + 5\r\n" + "WHERE USER_PHONE = '" + user_phone + "';";
 
 		}
 		try { // DB 접근
 			PreparedStatement ps = dbConn.conn.prepareStatement(sql);
-			ps.executeUpdate();
 
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -436,7 +436,6 @@ public class BookInfo extends JFrame {
 	public boolean isSuspension() {
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		Date returnDate;
-		Date susDate;
 		Date nowDate;
 		try {
 			nowDate = dateFormat.parse(LocalDate.now().toString());
@@ -452,7 +451,8 @@ public class BookInfo extends JFrame {
 
 						int compare = nowDate.compareTo(susDate); // 현재 날짜와 정지 날짜를 비교하면 compare가 0보다 크다면 정지
 
-						if (compare > 0) { // 만약 정지 날짜가 현재 날짜보다 뒤에있다면
+						if (compare < 0) { // 만약 정지 날짜가 현재 날짜보다 뒤에있다면
+							System.out.println(nowDate + " " + susDate);
 							return true;
 						}
 					}
@@ -467,8 +467,10 @@ public class BookInfo extends JFrame {
 					returnDate = dateFormat.parse(s);
 
 					int compare = nowDate.compareTo(returnDate); // 현재 날짜와 반납 날짜를 비교하면 compare가 0보다 크다면 반납 기한을 지남
-
+					boolean r = false;
+					int max = 0;
 					if (compare > 0) { // 만약 반납 날짜가 현재 날짜를 지났다면
+						
 						Calendar nowCal = Calendar.getInstance();
 						nowCal.setTime(nowDate);
 						Calendar returnCal = Calendar.getInstance();
@@ -476,11 +478,16 @@ public class BookInfo extends JFrame {
 
 						long diffSec = (nowCal.getTimeInMillis() - returnCal.getTimeInMillis()) / 1000;
 						diffDays = diffSec / (24 * 60 * 60); // 현재 날짜와 반납 일자수 차이
-
-						updateUserSuspension((int) diffDays); // 해당 유저의 정지일을 업데이트하기 위해 정지 업뎃함수를 호출함.
-
+						if(max < (int)diffDays) max = (int)diffDays;
+						r = true;
+						
+					}
+					
+					if(r && max != 0) {
+						updateUserSuspension(max); // 해당 유저의 정지일을 업데이트하기 위해 정지 업뎃함수를 호출함.
 						return true;
 					}
+					
 				}
 			} catch (SQLException e) {
 				e.printStackTrace();
@@ -491,6 +498,15 @@ public class BookInfo extends JFrame {
 		}
 		return false;
 	}
+	
+	//정지 여부를 확인해주는 함수
+	
+	
+	//정지일을 부여하는 함수
+	
+	//연체된책이 있는지 확인해주는 함수
+	
+	
 
 	// 해당 도서 대여시 Rent테이블 업뎃함수
 	public int BookRent() {

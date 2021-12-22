@@ -147,8 +147,8 @@ public class EditableBookInfo extends JFrame {
 							+ book_ISBN + "' AND RENT_RETURN_YN IS NULL;");
 					
 					if (rs2.next()) {
-						System.out.println(rs2.getString("BOOK_ISBN"));
-						System.out.println("안녕");
+						
+						
 						JOptionPane.showMessageDialog(null, "대여중인 도서입니다.", "도서 삭제 실패",
 								JOptionPane.ERROR_MESSAGE);
 					} else {
@@ -158,17 +158,37 @@ public class EditableBookInfo extends JFrame {
 						
 						int count1 = ps1.executeUpdate();
 						
-						//즐겨찾기 삭제
-						String sql2="DELETE from FAVORITES\r\n"
-								+ "WHERE FAVORITES.BOOK_ISBN = '"+book_ISBN+"';";
-						PreparedStatement ps2 = dbConn.conn.prepareStatement(sql2);
-						int count2 = ps2.executeUpdate();
+						ResultSet isFavorite = dbConn.executeQuery("SELECT BOOK_ISBN FROM FAVORITES WHERE BOOK_ISBN = '"
+								+ book_ISBN + "';");
 						
-						//리뷰 삭제
-						String sql3="DELETE from REVIEW\r\n"
-								+ "WHERE REVIEW.BOOK_ISBN = '"+book_ISBN+"';";
-						PreparedStatement ps3=dbConn.conn.prepareStatement(sql3);
-						int count3 = ps3.executeUpdate();
+						ResultSet isReview = dbConn.executeQuery("SELECT BOOK_ISBN FROM REVIEW WHERE BOOK_ISBN = '"
+								+ book_ISBN + "';");
+						
+						int count2 = 0;
+						int count3 = 0;
+						
+						if(isFavorite.next()) {
+							//즐겨찾기 삭제
+							String sql2="DELETE from FAVORITES\r\n"
+									+ "WHERE FAVORITES.BOOK_ISBN = '"+book_ISBN+"';";
+							
+							
+							PreparedStatement ps2 = dbConn.conn.prepareStatement(sql2);
+							count2 = ps2.executeUpdate();
+						}else {
+							count2 = 1;
+						}
+						
+						if(isReview.next()) {
+							//리뷰 삭제
+							String sql3="DELETE from REVIEW\r\n"
+									+ "WHERE REVIEW.BOOK_ISBN = '"+book_ISBN+"';";
+							PreparedStatement ps3=dbConn.conn.prepareStatement(sql3);
+							count3 = ps3.executeUpdate();	
+						}else {
+							count3 = 1;
+						}
+						
 						
 						if (count1 == 0||count2==0||count3==0) {
 							JOptionPane.showMessageDialog(null, "도서 삭제에 실패하였습니다.", "도서 삭제 실패",
@@ -176,7 +196,6 @@ public class EditableBookInfo extends JFrame {
 						} else {
 							JOptionPane.showMessageDialog(null, "도서 삭제에 성공하였습니다.", "도서 삭제 성공",
 									JOptionPane.NO_OPTION);
-							
 
 						}
 					}
