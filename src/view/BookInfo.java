@@ -574,7 +574,7 @@ public class BookInfo extends JFrame {
 	// 리뷰 가져오는 함수
 	public void getUserReview() {
 		ResultSet rs = dbConn.executeQuery(
-				"SELECT USER_PHONE, REVIEW_TEXT, BOOK_GRADE FROM REVIEW WHERE BOOK_ISBN = '" + book_ISBN + "';");
+				"SELECT USER_PHONE, REVIEW_TEXT, BOOK_GRADE FROM REVIEW WHERE BOOK_ISBN = '" + book_ISBN + "' order by REVIEW_SEQ DESC;");
 		int i = 0;
 		try {
 			while (rs.next() && i < 3) {

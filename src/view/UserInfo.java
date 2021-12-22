@@ -529,13 +529,14 @@ public class UserInfo extends JFrame {
 		panel_1.add(scrollPane);
 
 		table = new JTable();
+		String[] columns = { "제목", "저자", "출판사", "카테고리", "대출일", "반납일", "연체여부" }; // 테이블의 구성
 		
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int row_index = table.getSelectedRow(); // 선택한 row 
-				//정렬 되어 보이지만 실제 데이터는 정렬되어 있지 않음
-				int row = table.convertRowIndexToModel(row_index);		// 실제 모델에 저장되어 있는 인덱스 저장
+				int row_index = table.getSelectedRow(); // 선택한 row
+				// 정렬 되어 보이지만 실제 데이터는 정렬되어 있지 않음
+				int row = table.convertRowIndexToModel(row_index); // 실제 모델에 저장되어 있는 인덱스 저장
 				String book_title = table.getModel().getValueAt(row, 0).toString(); // 클릭한 열의 책 제목을 저장
 				String book_ISBN = ""; // 클릭한 책의 ISBN을 저장할 변수
 				try { // DB 접근
@@ -549,23 +550,61 @@ public class UserInfo extends JFrame {
 					System.out.println("SQL 실행 에러");
 				}
 
-					BookInfo bookinfo = new BookInfo(book_ISBN, user_phone); // 책 정보창 객체 생성 (매개변수 : 클릭한 책의 ISBN)
-					// 책정보창에서 창을 닫으면 호출되는 메소드
-					bookinfo.addWindowListener(new WindowAdapter() {
-						@Override
-						public void windowClosing(WindowEvent e) {
-							e.getWindow().dispose();
+				BookInfo bookinfo = new BookInfo(book_ISBN, user_phone); // 책 정보창 객체 생성 (매개변수 : 클릭한 책의 ISBN)
+				// 책정보창에서 창을 닫으면 호출되는 메소드
+				bookinfo.addWindowListener(new WindowAdapter() {
+					@Override
+					public void windowClosing(WindowEvent e) {
+						try {
+							// 대출정보 설정
+							ResultSet rs = dbConn.executeQuery(
+									"SELECT BOOK_ISBN, RENT_DATE, RENT_RETURN_DATE FROM RENT WHERE USER_PHONE = '"
+											+ user_phone + "' AND RENT_RETURN_YN IS NULL;");
+							int row = 0;
+							if (rs.last()) { // 커서를 마지막으로 이동
+								row = rs.getRow(); // row에 현재 row의 인덱스를 저장(총 row의 개수를 저장)
+								rs.beforeFirst(); // 다시 앞으로 이동시킴
+							}
+
+							String[][] data = new String[row][7]; // 테이블에 넣을 데이터를 저장할 배열
+							int i = 0;
+							// 읽은 데이터로 테이블 구성
+							while (rs.next()) {
+								String book_ISBN = rs.getString("BOOK_ISBN");
+								// 대출한 책들에 대한 정보 검색
+								ResultSet rs_rent = dbConn.executeQuery(
+										"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY FROM BOOK\r\n"
+												+ "WHERE BOOK_ISBN = '" + book_ISBN + "';");
+								while (rs_rent.next()) {
+									data[i][0] = rs_rent.getString("BOOK_TITLE"); // 책 제목
+									data[i][1] = rs_rent.getString("BOOK_AUTHOR"); // 책 저자
+									data[i][2] = rs_rent.getString("BOOK_PUB"); // 책 출판사
+									data[i][3] = rs_rent.getString("BOOK_CATEGORY"); // 책 카테고리
+								}
+								data[i][4] = rs.getString("RENT_DATE").substring(0, 16); // 대여한 날
+								data[i][5] = rs.getString("RENT_RETURN_DATE").substring(0, 16); // 반남마감 날
+								if (isSuspension(book_ISBN)) {
+									data[i][6] = "Y";
+								} else {
+									data[i][6] = "N";
+								}
+								i++;
+							}
+							table.setModel(new DefaultTableModel(data, columns)); // 테이들 다시 세팅
+						} catch (SQLException e1) {
+							System.out.println("유저 정보창에서 SQL 실행 에러");
 						}
-					});
-					
-					bookinfo.setLocationRelativeTo(null); // 화면중앙에 출력
-					bookinfo.setResizable(false); // 창 크기 고정
-					bookinfo.setVisible(true); // 책 정보창 띄움
-				}
-			
+						e.getWindow().dispose();
+					}
+				});
+
+				bookinfo.setLocationRelativeTo(null); // 화면중앙에 출력
+				bookinfo.setResizable(false); // 창 크기 고정
+				bookinfo.setVisible(true); // 책 정보창 띄움
+			}
+
 		});
-		
-		String[] columns = { "제목", "저자", "출판사", "카테고리", "대출일", "반납일", "연체여부" }; // 테이블의 구성
+
 		table.setModel(new DefaultTableModel(null, columns));
 		scrollPane.setViewportView(table);
 
@@ -789,10 +828,9 @@ public class UserInfo extends JFrame {
 				}
 				data[i][4] = rs.getString("RENT_DATE").substring(0, 16); // 대여한 날
 				data[i][5] = rs.getString("RENT_RETURN_DATE").substring(0, 16); // 반남마감 날
-				if(isSuspension(book_ISBN)) {
+				if (isSuspension(book_ISBN)) {
 					data[i][6] = "Y";
-				}
-				else {
+				} else {
 					data[i][6] = "N";
 				}
 				i++;
@@ -801,39 +839,40 @@ public class UserInfo extends JFrame {
 		} catch (SQLException e) {
 			System.out.println("유저 정보창에서 SQL 실행 에러");
 		}
-		
+
 	}
+
 	// 정지 여부를 확인해주는 함수
-		public boolean isSuspension(String book_ISBN) {
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-			Date returnDate;
-			Date susDate;
-			Date nowDate;
+	public boolean isSuspension(String book_ISBN) {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date returnDate;
+		Date susDate;
+		Date nowDate;
+		try {
+			nowDate = dateFormat.parse(LocalDate.now().toString());
 			try {
-				nowDate = dateFormat.parse(LocalDate.now().toString());
-				try {
-				
-					ResultSet rs = dbConn.executeQuery("SELECT RENT_RETURN_DATE FROM RENT WHERE USER_PHONE='" + user_phone
-							+ "' AND BOOK_ISBN='"+book_ISBN+"' AND RENT_RETURN_YN IS NULL;");
 
-					while (rs.next()) {
-						String s = rs.getString("RENT_RETURN_DATE");
-						s.substring(0, 10); // Mysql DATETIME 타입에서 날짜만 가져옴
-						returnDate = dateFormat.parse(s);
+				ResultSet rs = dbConn.executeQuery("SELECT RENT_RETURN_DATE FROM RENT WHERE USER_PHONE='" + user_phone
+						+ "' AND BOOK_ISBN='" + book_ISBN + "' AND RENT_RETURN_YN IS NULL;");
 
-						int compare = nowDate.compareTo(returnDate); // 현재 날짜와 반납 날짜를 비교하면 compare가 0보다 크다면 반납 기한을 지남
-						
-						if (compare > 0) { // 만약 반납 날짜가 현재 날짜를 지났다면
-							return true;
-						}
+				while (rs.next()) {
+					String s = rs.getString("RENT_RETURN_DATE");
+					s.substring(0, 10); // Mysql DATETIME 타입에서 날짜만 가져옴
+					returnDate = dateFormat.parse(s);
+
+					int compare = nowDate.compareTo(returnDate); // 현재 날짜와 반납 날짜를 비교하면 compare가 0보다 크다면 반납 기한을 지남
+
+					if (compare > 0) { // 만약 반납 날짜가 현재 날짜를 지났다면
+						return true;
 					}
-				} catch (SQLException e) {
-					e.printStackTrace();
-					System.out.println("isSuspension sql 오류");
 				}
-			} catch (ParseException e1) {
-				e1.printStackTrace();
+			} catch (SQLException e) {
+				e.printStackTrace();
+				System.out.println("isSuspension sql 오류");
 			}
-			return false;
+		} catch (ParseException e1) {
+			e1.printStackTrace();
 		}
+		return false;
+	}
 }
