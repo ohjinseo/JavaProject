@@ -56,9 +56,13 @@ public class BookInfo extends JFrame {
 	int userPoint = 0;
 	boolean userSus = false;
 	long diffDays = 0; // 연체일을 나타내는 변수
+	boolean overdueUser = false;
 	ReviewPanel[] review;
 	JLabel bookGradeLabel;
 	Date susDate = null;
+	Date returnDate;
+	SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	Date nowDate; 
 
 	/**
 	 * Launch the application.
@@ -100,16 +104,19 @@ public class BookInfo extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 
-				if (isSuspension()) { // 만약 연체 유저라면
+				int	overPeriod = 0;
+				
+				if (isSuspension()) { // 만약 정지유저라면
 					userSus = true;
-				} else { // 만약 연체 유저가 아니거나 정지일이 지난 유저라면
-					updateUserSuspension(0);
+				} else if(isOverdue() != 0){	//정지유자가아니면서 대출한 도서가 있는 유저라면? 
+					overdueUser = true;
+					overPeriod = isOverdue();
 				}
 				
 				if (bookBorrowButton.getText().equals("대출하기")) // 대출하기 버튼 상태일 때
 				{
 
-					if ((userPoint < 50 && bookBorrowCnt < 3 || userPoint >= 50 && bookBorrowCnt < 5) && !userSus) // 대출성공했을때
+					if ((userPoint < 50 && bookBorrowCnt < 3 || userPoint >= 50 && bookBorrowCnt < 5) && !userSus && !overdueUser) // 대출성공했을때
 																													
 					{
 						if (BookRent() == 1) {
@@ -129,22 +136,31 @@ public class BookInfo extends JFrame {
 						}
 
 					} else if ((userPoint < 50 && bookBorrowCnt >= 3 || userPoint >= 50 && bookBorrowCnt >= 5)
-							&& !userSus) // 대출 실패 했을 때(대출 가능 도서수 초과)
+							&& !userSus && !overdueUser) // 대출 실패 했을 때(대출 가능 도서수 초과)
 						JOptionPane.showMessageDialog(null, "대출 가능한 도서수를 초과하였습니다.\n다른 도서를 반납 후 다시 시도해 주세요.", "대출실패",
 								JOptionPane.WARNING_MESSAGE);
 
-					else if (userSus) // 남은 경우(대출 실패 했을 떄(연체된 책 존재))
-						JOptionPane.showMessageDialog(null, "연체된 책이 있습니다.\n나중에 다시 시도해 주세요.", "대출실패",
+					else if (userSus && !overdueUser) { // 정지 유저일 경우
+						SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+						String dt = sdf.format(susDate);
+						JOptionPane.showMessageDialog(null, "고객님은 " + dt + "까지 정지입니다^^", "대출실패",
 								JOptionPane.WARNING_MESSAGE);
+					}
+					else if(!userSus && overdueUser) {
+						JOptionPane.showMessageDialog(null, "연체된책이 있으니 도서를 반납 후 다시 시도해 주세요.", "대출실패",
+								JOptionPane.WARNING_MESSAGE);
+					}
 
 				} else if (bookBorrowButton.getText().equals("반납하기")) // 반납하기 버튼 상태일 때
 				{
-					if (!userSus) {
+					if (!overdueUser) {
 						JOptionPane.showMessageDialog(null, "반납에 성공하였습니다", "반납성공", JOptionPane.INFORMATION_MESSAGE);
-					} else // 연체된 경우
+					} else { // 연체유저일 경우
 						JOptionPane.showMessageDialog(null,
-								"반납에 성공하였습니다\n회원님의 연체일은 " + diffDays + "일입니다.\n해당 기간동안 책을 이용하실 수 없습니다.", "반납성공",
+								"반납에 성공하였습니다\n회원님의 연체일은 " + overPeriod + "일입니다.\n해당 기간동안 책을 이용하실 수 없습니다.", "반납성공",
 								JOptionPane.INFORMATION_MESSAGE);
+						updateUserSuspension(overPeriod);
+					}
 					// 리뷰 작성창 띄움
 					WriteReview writereview = new WriteReview(book_ISBN, user_phone);
 					writereview.addWindowListener(new WindowAdapter() {
@@ -403,6 +419,8 @@ public class BookInfo extends JFrame {
 	public void updateUserSuspension(int day) {
 		String sql;
 		if (day == 0) { // 연체일이 0라면
+			System.out.println("asd");
+			
 			sql = "update USER\r\n" + "SET USER_SUSPENSION = NULL\r\n" + "WHERE USER_PHONE = '" + user_phone + "';"; // 해당
 																														// 유저의
 																														// 정지일을
@@ -420,31 +438,29 @@ public class BookInfo extends JFrame {
 
 			sql = "update USER\r\n" + "SET USER_POINT = USER_POINT-5, USER_SUSPENSION = '" + diffTime + "'\r\n"
 					+ "WHERE USER_PHONE = '" + user_phone + "';"; // 해당 유저의 정지일을 업데이트시키고 포인트 5점을 깎음.
-
-
 		}
 		try { // DB 접근
 			PreparedStatement ps = dbConn.conn.prepareStatement(sql);
-
+			ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			System.out.println("updateUserSuspension sql 오류");
 		}
 	}
 
-	// 정지 여부를 확인해주는 함수
+	
+	//정지 여부를 확인해주는 함수
 	public boolean isSuspension() {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-		Date returnDate;
-		Date nowDate;
 		try {
-			nowDate = dateFormat.parse(LocalDate.now().toString());
-			try {
-				ResultSet rs1 = dbConn
-						.executeQuery("SELECT USER_SUSPENSION FROM USER WHERE USER_PHONE='" + user_phone + "';");
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		Date nowDate = dateFormat.parse(LocalDate.now().toString());
+		boolean rom = false; 
+		
+			ResultSet rs1 = dbConn
+					.executeQuery("SELECT USER_SUSPENSION FROM USER WHERE USER_PHONE='" + user_phone + "';");
 				while (rs1.next()) {
 					if (rs1.getString("USER_SUSPENSION") != null) {
-
+						rom = true;
 						String s = rs1.getString("USER_SUSPENSION");
 						s.substring(0, 10); // Mysql DATETIME 타입에서 날짜만 가져옴
 						susDate = dateFormat.parse(s);
@@ -453,58 +469,58 @@ public class BookInfo extends JFrame {
 
 						if (compare < 0) { // 만약 정지 날짜가 현재 날짜보다 뒤에있다면
 							System.out.println(nowDate + " " + susDate);
+							
 							return true;
 						}
 					}
 				}
-
-				ResultSet rs = dbConn.executeQuery("SELECT RENT_RETURN_DATE FROM RENT WHERE USER_PHONE='" + user_phone
-						+ "' AND RENT_RETURN_YN IS NULL;");
-
-				while (rs.next()) {
-					String s = rs.getString("RENT_RETURN_DATE");
-					s.substring(0, 10); // Mysql DATETIME 타입에서 날짜만 가져옴
-					returnDate = dateFormat.parse(s);
-
-					int compare = nowDate.compareTo(returnDate); // 현재 날짜와 반납 날짜를 비교하면 compare가 0보다 크다면 반납 기한을 지남
-					boolean r = false;
-					int max = 0;
-					if (compare > 0) { // 만약 반납 날짜가 현재 날짜를 지났다면
-						
-						Calendar nowCal = Calendar.getInstance();
-						nowCal.setTime(nowDate);
-						Calendar returnCal = Calendar.getInstance();
-						returnCal.setTime(returnDate);
-
-						long diffSec = (nowCal.getTimeInMillis() - returnCal.getTimeInMillis()) / 1000;
-						diffDays = diffSec / (24 * 60 * 60); // 현재 날짜와 반납 일자수 차이
-						if(max < (int)diffDays) max = (int)diffDays;
-						r = true;
-						
-					}
-					
-					if(r && max != 0) {
-						updateUserSuspension(max); // 해당 유저의 정지일을 업데이트하기 위해 정지 업뎃함수를 호출함.
-						return true;
-					}
-					
-				}
-			} catch (SQLException e) {
+				
+				if(rom) updateUserSuspension(0);
+			} catch (SQLException | ParseException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
-				System.out.println("isSuspension sql 오류");
 			}
-		} catch (ParseException e1) {
-			e1.printStackTrace();
-		}
 		return false;
 	}
 	
-	//정지 여부를 확인해주는 함수
 	
+	//연체된책이 있으면 연체일을 반환해주는 함수
+	public int isOverdue() {
 	
-	//정지일을 부여하는 함수
-	
-	//연체된책이 있는지 확인해주는 함수
+		ResultSet rs = dbConn.executeQuery("SELECT RENT_RETURN_DATE FROM RENT WHERE USER_PHONE='" + user_phone
+				+ "' AND RENT_RETURN_YN IS NULL;");
+		
+		int max = 0;
+		try {
+			nowDate = dateFormat.parse(LocalDate.now().toString());
+			
+			while (rs.next()) {
+				String s = rs.getString("RENT_RETURN_DATE");
+				s.substring(0, 10); // Mysql DATETIME 타입에서 날짜만 가져옴
+				returnDate = dateFormat.parse(s);
+
+				int compare = nowDate.compareTo(returnDate); // 현재 날짜와 반납 날짜를 비교하면 compare가 0보다 크다면 반납 기한을 지남
+				boolean r = false;
+				if (compare > 0) { // 만약 반납 날짜가 현재 날짜를 지났다면
+					
+					Calendar nowCal = Calendar.getInstance();
+					nowCal.setTime(nowDate);
+					Calendar returnCal = Calendar.getInstance();
+					returnCal.setTime(returnDate);
+
+					long diffSec = (nowCal.getTimeInMillis() - returnCal.getTimeInMillis()) / 1000;
+					diffDays = diffSec / (24 * 60 * 60); // 현재 날짜와 반납 일자수 차이
+					if(max < (int)diffDays) max = (int)diffDays;
+					
+				}
+			
+			}
+		} catch (SQLException | ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return max;
+	}
 	
 	
 
