@@ -16,6 +16,8 @@ import java.awt.Image;
 import java.awt.Color;
 import javax.swing.SwingConstants;
 import javax.swing.border.LineBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.SystemColor;
@@ -31,6 +33,7 @@ import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 
 import javax.swing.JTextArea;
 import javax.imageio.ImageIO;
@@ -48,6 +51,8 @@ public class AddBook extends JFrame {
 	dbConnector dbConn = new dbConnector();
 	public String user_phone="";	//유저 PK 정보를 저장할 변수
 	public Boolean manager = false;	//유저가 관리자인지 확인할 변수
+	int ret = 1;	//파일 선택 여부를 알려주는 변수
+	JButton bookAddButton;
 	private JPanel contentPane;
 	private JTextField bookNameTextField;
 	private JTextField bookHeaderTextField_1;
@@ -105,13 +110,14 @@ public class AddBook extends JFrame {
 		bookImageFindButton.addMouseListener(new MouseAdapter() { // 클릭이벤트
 			@Override
 			public void mouseClicked(MouseEvent e) {
-					int ret = book_img.showOpenDialog(null);	//파일 찾는 창을 띄우줌
+					ret = book_img.showOpenDialog(null);	//파일 찾는 창을 띄우줌
 					if(ret == 0) { //파일을 선택했다면
 						
 						String filePath = book_img.getSelectedFile().getPath();	//파일 경로를 filePath에 저장
 						
 						JOptionPane.showMessageDialog(null, filePath,"당신이 선택한 파일은",JOptionPane.NO_OPTION);	//선택한 파일경로를 메시지 창으로 띄움
 						book_img_path.setText(filePath);
+						
 						try { // DB 접근
 							//책 이미지
 							File tmpFile = new File(book_img_path.getText());
@@ -157,6 +163,27 @@ public class AddBook extends JFrame {
 		bookNameTextField.setBounds(92, 20, 407, 26);
 		panel_1.add(bookNameTextField);
 		bookNameTextField.setColumns(10);
+		bookNameTextField.getDocument().addDocumentListener(new DocumentListener() {
+			  public void changedUpdate(DocumentEvent e) {
+				    changed();
+				  }
+				  public void removeUpdate(DocumentEvent e) {
+				    changed();
+				  }
+				  public void insertUpdate(DocumentEvent e) {
+				    changed();
+				  }
+
+				  public void changed() {
+				     if (bookISBNTextField.getText().equals("")){
+				    	 bookAddButton.setEnabled(false);
+				     }
+				     else {
+				    	 bookAddButton.setEnabled(true);
+				    }
+
+				  }
+				});
 
 		// 책 저자 라벨
 		JLabel bookHeaderLabel_1 = new JLabel("\uC800\uC790 :");
@@ -171,6 +198,27 @@ public class AddBook extends JFrame {
 		bookHeaderTextField_1.setColumns(10);
 		bookHeaderTextField_1.setBounds(92, 60, 157, 26);
 		panel_1.add(bookHeaderTextField_1);
+		bookHeaderTextField_1.getDocument().addDocumentListener(new DocumentListener() {
+			  public void changedUpdate(DocumentEvent e) {
+				    changed();
+				  }
+				  public void removeUpdate(DocumentEvent e) {
+				    changed();
+				  }
+				  public void insertUpdate(DocumentEvent e) {
+				    changed();
+				  }
+
+				  public void changed() {
+				     if (bookISBNTextField.getText().equals("")){
+				    	 bookAddButton.setEnabled(false);
+				     }
+				     else {
+				    	 bookAddButton.setEnabled(true);
+				    }
+
+				  }
+				});
 
 		// 책 출판사 라벨
 		JLabel bookHeaderLabel_2 = new JLabel("\uCD9C\uD310\uC0AC : ");
@@ -184,6 +232,27 @@ public class AddBook extends JFrame {
 		bookHeaderTextField_2.setColumns(10);
 		bookHeaderTextField_2.setBounds(342, 60, 157, 26);
 		panel_1.add(bookHeaderTextField_2);
+		bookHeaderTextField_2.getDocument().addDocumentListener(new DocumentListener() {
+			  public void changedUpdate(DocumentEvent e) {
+				    changed();
+				  }
+				  public void removeUpdate(DocumentEvent e) {
+				    changed();
+				  }
+				  public void insertUpdate(DocumentEvent e) {
+				    changed();
+				  }
+
+				  public void changed() {
+				     if (bookISBNTextField.getText().equals("")){
+				    	 bookAddButton.setEnabled(false);
+				     }
+				     else {
+				    	 bookAddButton.setEnabled(true);
+				    }
+
+				  }
+				});
 
 		// 책 관련링크 라벨
 		JLabel bookLinkLabel = new JLabel("\uAD00\uB828\uB9C1\uD06C : ");
@@ -203,6 +272,7 @@ public class AddBook extends JFrame {
 		bookPriceLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookPriceLabel.setBounds(12, 107, 46, 26);
 		panel_1.add(bookPriceLabel);
+		
 
 		// 책 가격 텍스트필드
 		bookPriceTextField = new JTextField();
@@ -210,12 +280,34 @@ public class AddBook extends JFrame {
 		bookPriceTextField.setColumns(10);
 		bookPriceTextField.setBounds(92, 107, 407, 26);
 		panel_1.add(bookPriceTextField);
+		bookPriceTextField.getDocument().addDocumentListener(new DocumentListener() {
+			  public void changedUpdate(DocumentEvent e) {
+				    changed();
+				  }
+				  public void removeUpdate(DocumentEvent e) {
+				    changed();
+				  }
+				  public void insertUpdate(DocumentEvent e) {
+				    changed();
+				  }
+
+				  public void changed() {
+				     if (bookISBNTextField.getText().equals("")){
+				    	 bookAddButton.setEnabled(false);
+				     }
+				     else {
+				    	 bookAddButton.setEnabled(true);
+				    }
+
+				  }
+				});
 
 		// 책 ISBN 라벨
 		JLabel bookISBNLabel = new JLabel("ISBN : ");
 		bookISBNLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookISBNLabel.setBounds(12, 154, 58, 26);
 		panel_1.add(bookISBNLabel);
+		
 
 		// 책 ISBN 텍스트필드
 		bookISBNTextField = new JTextField();
@@ -223,6 +315,28 @@ public class AddBook extends JFrame {
 		bookISBNTextField.setColumns(10);
 		bookISBNTextField.setBounds(92, 154, 407, 26);
 		panel_1.add(bookISBNTextField);
+		bookISBNTextField.getDocument().addDocumentListener(new DocumentListener() {
+			  public void changedUpdate(DocumentEvent e) {
+				    changed();
+				  }
+				  public void removeUpdate(DocumentEvent e) {
+				    changed();
+				  }
+				  public void insertUpdate(DocumentEvent e) {
+				    changed();
+				  }
+
+				  public void changed() {
+				     if (bookISBNTextField.getText().equals("")){
+				    	 bookAddButton.setEnabled(false);
+				     }
+				     else {
+				    	 bookAddButton.setEnabled(true);
+				    }
+
+				  }
+				});
+		
 
 		// 책 줄거리 패널
 		JPanel panel_2 = new JPanel();
@@ -230,6 +344,7 @@ public class AddBook extends JFrame {
 		panel_2.setBounds(12, 310, 805, 177);
 		contentPane.add(panel_2);
 		panel_2.setLayout(null);
+		
 
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setViewportBorder(new LineBorder(new Color(128, 128, 128), 1, true));
@@ -242,13 +357,15 @@ public class AddBook extends JFrame {
 		bookDescriptionTextField.setColumns(10);
 
 		// 책 추가 버튼
-		JButton bookAddButton = new JButton("\uB3C4\uC11C \uCD94\uAC00");
+		bookAddButton = new JButton("\uB3C4\uC11C \uCD94\uAC00");
+		bookAddButton.setEnabled(false);
 		bookAddButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 15));
 		bookAddButton.setBounds(348, 511, 132, 48);
 		//책 추가 버튼을 누르면 호출되는 메소드 연결
 		bookAddButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				boolean isSuccess = false;
 
 					String sql = "insert into BOOK(\r\n"
 							+ "BOOK_ISBN,\r\n"
@@ -274,9 +391,11 @@ public class AddBook extends JFrame {
 					ps.setString(6, bookDescriptionTextField.getText());	//책 줄거리
 					ps.setString(7, bookLinkTextField.getText());			//책 관련링크
 					
+					if(ret == 1) book_img_path.setText("images/nobook.png");
 					//책 이미지
 					FileInputStream fin = new FileInputStream(book_img_path.getText());
 					ps.setBinaryStream(8, fin, fin.available());
+					
 					
 					
 					int count = ps.executeUpdate();
@@ -285,8 +404,18 @@ public class AddBook extends JFrame {
 					}
 					else {		
 						JOptionPane.showMessageDialog(null,"ISBN : "+bookISBNTextField.getText()+"이(는) 등록에 성공하였습니다.", "신규도서등록 성공", JOptionPane.NO_OPTION);
+						isSuccess = true;
 					}
-				} catch (SQLException e1) {
+				}
+				catch (NumberFormatException e1) {
+					e1.printStackTrace();	//에러 추적
+					JOptionPane.showMessageDialog(null, "가격에 숫자만 입력가능합니다.", "입력 오류", JOptionPane.ERROR_MESSAGE);	//가격에 문자 입력시 메시지 호출
+				}
+				catch(SQLIntegrityConstraintViolationException e1) {
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(null, "입력한 ISBN이 이미 존재합니다.", "입력 오류", JOptionPane.ERROR_MESSAGE);	//가격에 문자 입력시 메시지 호출
+				}
+				catch (SQLException e1) {
 					e1.printStackTrace();	//에러 추적
 					System.out.println("도서추가 화면에서 SQL 실행 에러");
 				}catch(FileNotFoundException e1) {
@@ -295,7 +424,8 @@ public class AddBook extends JFrame {
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
-				dispose();	//추가 후 창 닫기
+				if(isSuccess)
+					dispose();	//추가 후 창 닫기
 			}
 		});
 		contentPane.add(bookAddButton);	//책 추가 버튼 부착
