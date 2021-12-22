@@ -257,31 +257,35 @@ public class AddBook extends JFrame {
 		// 책 관련링크 라벨
 		JLabel bookLinkLabel = new JLabel("\uAD00\uB828\uB9C1\uD06C : ");
 		bookLinkLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
-		bookLinkLabel.setBounds(12, 203, 83, 26);
+		bookLinkLabel.setBounds(12, 216, 83, 26);
 		panel_1.add(bookLinkLabel);
 
 		// 책 관련링크 텍스트필드
 		bookLinkTextField = new JTextField();
 		bookLinkTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookLinkTextField.setColumns(10);
-		bookLinkTextField.setBounds(92, 203, 407, 26);
+		bookLinkTextField.setBounds(92, 216, 407, 26);
 		panel_1.add(bookLinkTextField);
 
 		// 책 가격 라벨
 		JLabel bookPriceLabel = new JLabel("\uAC00\uACA9 : ");
 		bookPriceLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
-		bookPriceLabel.setBounds(12, 107, 46, 26);
+		bookPriceLabel.setBounds(12, 118, 46, 26);
 		panel_1.add(bookPriceLabel);
 		
-
+		JLabel lblNewLabel_1 = new JLabel("");
+		lblNewLabel_1.setForeground(Color.RED);
+		lblNewLabel_1.setBounds(91, 145, 225, 15);
+		panel_1.add(lblNewLabel_1);
 		// 책 가격 텍스트필드
 		bookPriceTextField = new JTextField();
 		bookPriceTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookPriceTextField.setColumns(10);
-		bookPriceTextField.setBounds(92, 107, 407, 26);
+		bookPriceTextField.setBounds(92, 118, 407, 26);
 		panel_1.add(bookPriceTextField);
 		bookPriceTextField.getDocument().addDocumentListener(new DocumentListener() {
 			  public void changedUpdate(DocumentEvent e) {
+				  
 				    changed();
 				  }
 				  public void removeUpdate(DocumentEvent e) {
@@ -290,7 +294,7 @@ public class AddBook extends JFrame {
 				  public void insertUpdate(DocumentEvent e) {
 				    changed();
 				  }
-
+				  
 				  public void changed() {
 				     if (bookISBNTextField.getText().equals("")){
 				    	 bookAddButton.setEnabled(false);
@@ -298,6 +302,14 @@ public class AddBook extends JFrame {
 				     else {
 				    	 bookAddButton.setEnabled(true);
 				    }
+				   
+				     if (bookPriceTextField.getText().length() > 10) {
+				    	 bookAddButton.setEnabled(false);
+				    	 lblNewLabel_1.setText("가격은 10자리 이하만 가능합니다.");
+				     }else {
+				    	 bookAddButton.setEnabled(true);
+				    	 lblNewLabel_1.setText("");
+				     }
 
 				  }
 				});
@@ -305,7 +317,7 @@ public class AddBook extends JFrame {
 		// 책 ISBN 라벨
 		JLabel bookISBNLabel = new JLabel("ISBN : ");
 		bookISBNLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
-		bookISBNLabel.setBounds(12, 154, 58, 26);
+		bookISBNLabel.setBounds(12, 170, 58, 26);
 		panel_1.add(bookISBNLabel);
 		
 
@@ -313,8 +325,15 @@ public class AddBook extends JFrame {
 		bookISBNTextField = new JTextField();
 		bookISBNTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookISBNTextField.setColumns(10);
-		bookISBNTextField.setBounds(92, 154, 407, 26);
+		bookISBNTextField.setBounds(92, 170, 407, 26);
 		panel_1.add(bookISBNTextField);
+		
+		JLabel lblNewLabel = new JLabel("");
+		lblNewLabel.setForeground(Color.RED);
+		lblNewLabel.setBounds(91, 202, 225, 15);
+		panel_1.add(lblNewLabel);
+		
+		
 		bookISBNTextField.getDocument().addDocumentListener(new DocumentListener() {
 			  public void changedUpdate(DocumentEvent e) {
 				    changed();
@@ -333,6 +352,14 @@ public class AddBook extends JFrame {
 				     else {
 				    	 bookAddButton.setEnabled(true);
 				    }
+				     
+				     if(bookISBNTextField.getText().length() > 13) {
+				    	 bookAddButton.setEnabled(false);
+				    	 lblNewLabel.setText("ISBN은 13자리 이하만 가능합니다.");
+				     }else {
+				    	 bookAddButton.setEnabled(true);
+				    	 lblNewLabel.setText("");
+				     }
 
 				  }
 				});

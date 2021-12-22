@@ -51,7 +51,7 @@ public class BookInfo extends JFrame {
 	private JPanel contentPane;
 	int bookReviewCnt = 0;
 	int bookReviewGrade = 0;
-	int bookBorrowCnt = 3;
+	int bookBorrowCnt = 0;
 	int userPoint = 0;
 	boolean userSus = false;
 	long diffDays = 0; // 연체일을 나타내는 변수
@@ -105,9 +105,8 @@ public class BookInfo extends JFrame {
 						updateUserSuspension(0);
 					}
 
-					if ((userPoint < 50 && bookBorrowCnt < 3 || userPoint >= 50 && bookBorrowCnt < 5) && !userSus) // 대출
-																													// 성공
-																													// 했을때
+					if ((userPoint < 50 && bookBorrowCnt < 3 || userPoint >= 50 && bookBorrowCnt < 5) && !userSus) // 대출성공했을때
+																													
 					{
 						if (BookRent() == 1) {
 							Date now = new Date();
@@ -211,7 +210,7 @@ public class BookInfo extends JFrame {
 		// 책 즐겨찾기 라벨
 		JLabel bookFavoritesLabel = new JLabel("\u2606");
 
-		bookFavoritesLabel.setText(setStar(book_ISBN,user_phone));
+		bookFavoritesLabel.setText(setStar(book_ISBN, user_phone));
 
 		bookFavoritesLabel.addMouseListener(new MouseAdapter() {
 			@Override
@@ -258,7 +257,7 @@ public class BookInfo extends JFrame {
 		panel_3.setBounds(12, 435, 805, 189);
 		contentPane.add(panel_3);
 		panel_3.setLayout(null);
-		
+
 		review = new ReviewPanel[3];
 		review[0] = new ReviewPanel();
 		review[0].setSize(805, 65);
@@ -287,7 +286,7 @@ public class BookInfo extends JFrame {
 
 			// 사용자의 대여 횟수 가져오기
 			rs = dbConn.executeQuery(
-					"SELECT COUNT(*) FROM RENT WHERE USER_PHONE = '" + user_phone + "' AND RENT_RETURN_YN = NULL;");
+					"SELECT COUNT(*) FROM RENT WHERE USER_PHONE = '" + user_phone + "' AND RENT_RETURN_YN is NULL;");
 			if (rs.next()) {
 				bookBorrowCnt = rs.getInt(1);
 			}
@@ -505,53 +504,46 @@ public class BookInfo extends JFrame {
 			System.out.println("bookRentCnt sql 오류");
 		}
 	}
-	
-	//별 채색여부 설정 함수
-	public String setStar(String ISBN,String phone) {
 
-		String sql = "SELECT * FROM FAVORITES WHERE BOOK_ISBN = '"+ISBN+"' AND USER_PHONE = '"+phone+"';";
+	// 별 채색여부 설정 함수
+	public String setStar(String ISBN, String phone) {
 
-		ResultSet rs1=dbConn.executeQuery(sql);
+		String sql = "SELECT * FROM FAVORITES WHERE BOOK_ISBN = '" + ISBN + "' AND USER_PHONE = '" + phone + "';";
+
+		ResultSet rs1 = dbConn.executeQuery(sql);
 		try {
-			if(rs1.next()) { //결과가 null이 아닌경우(검색결과가 존재하는 경우)
+			if (rs1.next()) { // 결과가 null이 아닌경우(검색결과가 존재하는 경우)
 				return "★";
-			}
-			else {
+			} else {
 				return "☆";
 			}
-			
+
 		} catch (SQLException e1) {
 			e1.printStackTrace();
 			return "☆";
-		}	
-	
-	
+		}
+
 	}
-	
-	//즐겨찾기 이벤트 함수
+
+	// 즐겨찾기 이벤트 함수
 	public void favorite_event() {
-		String sql = "insert into FAVORITES(\r\n"
-					+"BOOK_ISBN,\r\n"
-					+"USER_PHONE\r\n"
-					+")values(\r\n"
-					+"?, ?);";
+		String sql = "insert into FAVORITES(\r\n" + "BOOK_ISBN,\r\n" + "USER_PHONE\r\n" + ")values(\r\n" + "?, ?);";
 		try { // DB 접근
 			PreparedStatement ps = dbConn.conn.prepareStatement(sql);
-			
-			ps.setString(1, book_ISBN);		//도서 ISBN
-			ps.setString(2, user_phone);	//유저 휴대전화
-			
+
+			ps.setString(1, book_ISBN); // 도서 ISBN
+			ps.setString(2, user_phone); // 유저 휴대전화
+
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 			System.out.println("즐겨찾기 추가 sql 오류");
 		}
 	}
-	
+
 	public void favorite_delete_event() {
-		String sql = "delete from FAVORITES\r\n"
-					+"where FAVORITES.USER_PHONE = '"+user_phone+"'\r\n"
-					+"and FAVORITES.BOOK_ISBN = '"+book_ISBN+"';\r\n";
+		String sql = "delete from FAVORITES\r\n" + "where FAVORITES.USER_PHONE = '" + user_phone + "'\r\n"
+				+ "and FAVORITES.BOOK_ISBN = '" + book_ISBN + "';\r\n";
 		try { // DB 접근
 			PreparedStatement ps = dbConn.conn.prepareStatement(sql);
 			ps.executeUpdate();
@@ -560,6 +552,7 @@ public class BookInfo extends JFrame {
 			System.out.println("즐겨찾기 삭제 sql 오류");
 		}
 	}
+
 	// 도서 반납 함수
 	public void updateBookReturn() {
 		String sql = "update RENT\r\n" + "SET RENT_RETURN_YN = NOW()\r\n" + "WHERE RENT.USER_PHONE = '" + user_phone
@@ -577,21 +570,22 @@ public class BookInfo extends JFrame {
 		}
 
 	}
-	
+
+	// 리뷰 가져오는 함수
 	public void getUserReview() {
-		ResultSet rs = dbConn.executeQuery("SELECT USER_PHONE, REVIEW_TEXT, BOOK_GRADE FROM REVIEW WHERE BOOK_ISBN = '" + book_ISBN + "';");
+		ResultSet rs = dbConn.executeQuery(
+				"SELECT USER_PHONE, REVIEW_TEXT, BOOK_GRADE FROM REVIEW WHERE BOOK_ISBN = '" + book_ISBN + "';");
 		int i = 0;
 		try {
-			while(rs.next() && i < 3) {
-				
+			while (rs.next() && i < 3) {
+
 				String reviewUserPhone = rs.getString("USER_PHONE");
 				String reviewUserName = "";
 				System.out.println();
 				ResultSet rs2 = dbConn.executeQuery(
-						"SELECT USER_NAME FROM USER\r\n"
-								+ "WHERE USER_PHONE = '" + reviewUserPhone + "';");
-				
-				if(rs2.next()) {
+						"SELECT USER_NAME FROM USER\r\n" + "WHERE USER_PHONE = '" + reviewUserPhone + "';");
+
+				if (rs2.next()) {
 					reviewUserName = rs2.getString("USER_NAME");
 				}
 				review[i++].addProperty(reviewUserName, rs.getInt("BOOK_GRADE"), rs.getString("REVIEW_TEXT"));
