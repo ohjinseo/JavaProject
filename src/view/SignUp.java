@@ -639,7 +639,7 @@ public class SignUp extends JFrame {
 				//메세지 작성
 				try {
 					MimeMessage message = new MimeMessage(session);
-					message.setFrom(new InternetAddress("hoo9902@naver.com"));	//보내는 사람의 메일
+					message.setFrom(new InternetAddress(user));	//보내는 사람의 메일
 					message.setRecipient(Message.RecipientType.TO, new InternetAddress(to));	//받을 사람의 메일
 					
 					//제목

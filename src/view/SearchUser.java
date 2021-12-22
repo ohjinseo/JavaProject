@@ -182,10 +182,42 @@ public class SearchUser extends JFrame {
 		searchTextField.setColumns(10);
 
 		// 검색 버튼
-		JButton searchButton = new JButton("\uAC80\uC0C9");
+		JButton searchButton = new JButton("검색");
 		searchButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+				try {
+					String search_how = "전체"; // 검색 조건이 들어갈 search_how (이름, 전화번호..)
+					ResultSet rs;
+					switch (searchComboBox.getSelectedItem().toString()) {
+					case "이름": // 검색조건이 "이름"일 때
+						search_how = "NAME";
+						break;
+					case "전화번호": // 검색조건이 "전화번호"일 때
+						search_how = "PHONE";
+						break;
+					case "이메일": // 검색조건이 "이메일"일 때
+						search_how = "MAIL";
+						break;
+					case "전체": // 검색조건이 "전체"일 때
+						search_how = "NAME LIKE '" + searchTextField.getText() + "%' OR USER_PHONE LIKE '"
+								+ searchTextField.getText() + "%' OR USER_MAIL";
+						break;
+					}
+					rs = dbConn.executeQuery(
+							"SELECT USER_NAME, USER_MAIL, USER_PHONE, USER_BIRTH, USER_SUSPENSION, USER_OUT_DATE\r\n"
+									+ "FROM USER " + "WHERE (USER_" + search_how +" LIKE '" + searchTextField.getText()
+									+ "%')AND USER_MANAGER = false;"); // DB에서 검생창에 입력된 값으로 유저 정보 검색
+					if (rs != null) // 검색결과가 있으면
+					{
+						System.out.println("검색완료");
+						set_table(rs); // 테이블 재구성
+					} else // 없으면
+						System.out.println("검색결과가 없습니다.");
+				} catch (SQLException e2) {
+					e2.printStackTrace();
+					System.out.println("SQL 실행 에러");
+				}
 			}
 		});
 		searchButton.setBackground(new Color(220, 220, 220));
@@ -291,17 +323,17 @@ public class SearchUser extends JFrame {
 				data[i][2] = rs.getString("USER_PHONE"); // 회원 전화번호
 				data[i][3] = rs.getString("USER_BIRTH"); // 회원 생일
 				// 회원 정지여부
-				if (rs.getString("USER_SUSPENSION")==null) {
+				if (rs.getString("USER_SUSPENSION") == null) {
 					data[i][4] = "N";
 				} else {
-					data[i][4] = rs.getString("USER_SUSPENSION").substring(0,16);
+					data[i][4] = rs.getString("USER_SUSPENSION").substring(0, 16);
 				}
 
 				// 회원 탈퇴여부
-				if (rs.getString("USER_OUT_DATE")==null) {
+				if (rs.getString("USER_OUT_DATE") == null) {
 					data[i][5] = "N";
 				} else {
-					data[i][5] = rs.getString("USER_OUT_DATE").substring(0,10);
+					data[i][5] = rs.getString("USER_OUT_DATE").substring(0, 10);
 				}
 				i++;
 			}
