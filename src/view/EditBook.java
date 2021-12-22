@@ -23,6 +23,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -293,6 +295,19 @@ public class EditBook extends JFrame {
 		bookPriceTextField.setColumns(10);
 		bookPriceTextField.setBounds(93, 99, 366, 26);
 		panel_1.add(bookPriceTextField);
+		bookPriceTextField.addKeyListener(new KeyAdapter() {
+	         public void keyPressed(KeyEvent ke) {
+	             String value = bookPriceTextField.getText();
+	             int l = value.length();
+	             if (ke.getKeyChar() >= '0' && ke.getKeyChar() <= '9' || ke.getKeyChar() == KeyEvent.VK_BACK_SPACE) {
+	            	 bookPriceTextField.setEditable(true);
+	            	 lblNewLabel_1.setText("");
+	             } else {
+	            	 bookPriceTextField.setEditable(false);
+	            	 lblNewLabel_1.setText("가격은 숫자만 가능합니다.");
+	             }
+	          }
+	       });
 		bookPriceTextField.getDocument().addDocumentListener(new DocumentListener() {
 			  public void changedUpdate(DocumentEvent e) {
 				    changed();
@@ -332,6 +347,7 @@ public class EditBook extends JFrame {
 
 		// 책 ISBN 텍스트필드
 		bookISBNTextField = new JTextField();
+		bookISBNTextField.setEditable(false);
 		bookISBNTextField.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookISBNTextField.setColumns(10);
 		bookISBNTextField.setBounds(93, 156, 366, 26);

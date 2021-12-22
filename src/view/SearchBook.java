@@ -72,6 +72,13 @@ public class SearchBook extends JFrame {
 	JCheckBox[] jcb = new JCheckBox[10];
 	private final ButtonGroup buttonGroup_1 = new ButtonGroup();
 	private final ButtonGroup buttonGroup_2 = new ButtonGroup();
+	JRadioButton headerRadioButton;
+	JRadioButton recentRadioButton ;
+	JRadioButton gradeRadioButton;
+	JRadioButton popularityRadioButton;
+	JRadioButton canborrowRadioButton ;
+	JRadioButton borrowingNewRadioButton;
+	List<RowSorter.SortKey> sortKeys;
 	private int t = 0;
 	private Main mainFrame;
 	private UserInfo userInfoFrame;
@@ -278,6 +285,7 @@ public class SearchBook extends JFrame {
 										"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN, BOOK_GRADE, BOOK_RENT_COUNT, BOOK_APPEND_DATE FROM BOOK WHERE BOOK_PRE = TRUE;");
 								set_table(rs);
 								setTrs();
+								setFilter();
 							} catch (SQLException e1) {
 								e1.printStackTrace();
 								System.out.println("도서 검색창 테이블 구성중 SQL 실행 에러");
@@ -300,6 +308,7 @@ public class SearchBook extends JFrame {
 										"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_CATEGORY, BOOK_ISBN, BOOK_GRADE, BOOK_RENT_COUNT, BOOK_APPEND_DATE FROM BOOK WHERE BOOK_PRE = TRUE;");
 								set_table(rs);
 								setTrs();
+								setFilter();
 							} catch (SQLException e1) {
 								e1.printStackTrace();
 								System.out.println("도서 검색창 테이블 구성중 SQL 실행 에러");
@@ -420,6 +429,8 @@ public class SearchBook extends JFrame {
 		jcb[7].setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		jcb[7].setBounds(8, 204, 107, 23);
 		panel_2.add(jcb[7]);
+		
+		
 
 		
 		
@@ -458,10 +469,10 @@ public class SearchBook extends JFrame {
 		
 		
 
-		List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+		sortKeys = new ArrayList<>();
 		
 		//제목순 라디오버튼
-		JRadioButton headerRadioButton = new JRadioButton("\uC81C\uBAA9\uC21C");
+		headerRadioButton = new JRadioButton("\uC81C\uBAA9\uC21C");
 		
 		buttonGroup_1.add(headerRadioButton);
 		headerRadioButton.addItemListener(new ItemListener() {
@@ -484,7 +495,7 @@ public class SearchBook extends JFrame {
 		panel_2.add(headerRadioButton);
 		
 		// 최신순 라디오버튼
-		JRadioButton recentRadioButton = new JRadioButton("\uCD5C\uC2E0\uC21C");
+		recentRadioButton = new JRadioButton("\uCD5C\uC2E0\uC21C");
 		recentRadioButton.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				if(e.getStateChange() == ItemEvent.SELECTED) {
@@ -504,7 +515,7 @@ public class SearchBook extends JFrame {
 		panel_2.add(recentRadioButton);
 
 		// 인기순 라디오버튼
-		JRadioButton popularityRadioButton = new JRadioButton("\uC778\uAE30\uC21C");
+		popularityRadioButton = new JRadioButton("\uC778\uAE30\uC21C");
 		popularityRadioButton.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				if(e.getStateChange() == ItemEvent.SELECTED) {
@@ -521,9 +532,11 @@ public class SearchBook extends JFrame {
 		popularityRadioButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		popularityRadioButton.setBounds(12, 316, 113, 23);
 		panel_2.add(popularityRadioButton);
+		
+		
 
 		// 평점순 라디오 버튼
-		JRadioButton gradeRadioButton = new JRadioButton("\uD3C9\uC810\uC21C");
+		 gradeRadioButton = new JRadioButton("\uD3C9\uC810\uC21C");
 		gradeRadioButton.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				if(e.getStateChange() == ItemEvent.SELECTED) {
@@ -548,7 +561,7 @@ public class SearchBook extends JFrame {
 		panel_2.add(canBorrowLabel);
 		
 		// 대출가능 라디오버튼
-		JRadioButton canborrowRadioButton = new JRadioButton("\uB300\uCD9C\uAC00\uB2A5");
+		 canborrowRadioButton = new JRadioButton("\uB300\uCD9C\uAC00\uB2A5");
 		
 		//대출 가능 필터링 이벤트
 		canborrowRadioButton.addItemListener(new ItemListener() {
@@ -564,6 +577,10 @@ public class SearchBook extends JFrame {
 				combineOrAndFilters();
 			}
 		});
+		
+		
+		
+		
 		canborrowRadioButton.setBackground(Color.WHITE);
 		buttonGroup_2.add(canborrowRadioButton);
 		canborrowRadioButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
@@ -571,7 +588,7 @@ public class SearchBook extends JFrame {
 		panel_2.add(canborrowRadioButton);
 
 		// 대출중 라디오버튼
-		JRadioButton borrowingNewRadioButton = new JRadioButton("\uB300\uCD9C\uC911");
+		borrowingNewRadioButton = new JRadioButton("\uB300\uCD9C\uC911");
 		borrowingNewRadioButton.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				if(e.getStateChange() == ItemEvent.SELECTED) {
@@ -684,6 +701,39 @@ public class SearchBook extends JFrame {
 		} catch (SQLException e2) {
 			e2.printStackTrace();
 			System.out.println("SQL 실행 에러");
+		}
+	}
+	
+	
+	public void setFilter() {
+		if(canborrowRadioButton.isSelected()) {
+			borrowFilter.put(canborrowRadioButton.getText(), RowFilter.regexFilter(canborrowRadioButton.getText(), 4));	//테이블 5행에 있는 대출여부명을 필터항목에 추가시켜 해시맵에 삽입
+		}else if(borrowingNewRadioButton.isSelected()) {
+			borrowFilter.put(borrowingNewRadioButton.getText(), RowFilter.regexFilter(borrowingNewRadioButton.getText(), 4));	//테이블 5행에 있는 대출여부명을 필터항목에 추가시켜 해시맵에 삽입
+		}
+		
+		for(int i = 0; i < 8; i++) {
+			if(jcb[i].isSelected()) {
+				categoryFilter.put(jcb[i].getText(), RowFilter.regexFilter(jcb[i].getText(), 3));	//테이블 3행에 있는 카테고리명을 필터항목에 추가시켜 해시맵에 삽입
+				checkNum++;
+			}
+			combineOrAndFilters();
+			
+			if(headerRadioButton.isSelected()) {
+				sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+			}
+			else if(recentRadioButton.isSelected()) {
+				sortKeys.add(new RowSorter.SortKey(7, SortOrder.DESCENDING));
+			}else if(popularityRadioButton.isSelected()) {
+				sortKeys.add(new RowSorter.SortKey(6, SortOrder.DESCENDING));
+			}else if(gradeRadioButton.isSelected()) {
+				sortKeys.add(new RowSorter.SortKey(5, SortOrder.DESCENDING));
+			}
+			
+			trs.setSortKeys(sortKeys);
+			
+			
+			
 		}
 	}
 

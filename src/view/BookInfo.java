@@ -18,6 +18,7 @@ import javax.swing.border.LineBorder;
 import java.awt.SystemColor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -56,6 +57,7 @@ public class BookInfo extends JFrame {
 	boolean userSus = false;
 	long diffDays = 0; // 연체일을 나타내는 변수
 	ReviewPanel[] review;
+	JLabel bookGradeLabel;
 
 	/**
 	 * Launch the application.
@@ -143,6 +145,18 @@ public class BookInfo extends JFrame {
 								JOptionPane.INFORMATION_MESSAGE);
 					// 리뷰 작성창 띄움
 					WriteReview writereview = new WriteReview(book_ISBN, user_phone);
+					writereview.addWindowListener(new WindowAdapter() {
+						@Override
+						public void windowClosed(WindowEvent e) {
+							try {
+								recentlyReview();
+							} catch (NumberFormatException | SQLException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							
+						}
+					});
 					writereview.setVisible(true);
 					updateBookReturn(); // 반납 업뎃함수
 					bookBorrowButton.setText("대출하기"); // 대출하기 버튼으로 변경
@@ -190,7 +204,7 @@ public class BookInfo extends JFrame {
 		panel_1.add(bookLinkLabel);
 
 		// 책 평점 라벨
-		JLabel bookGradeLabel = new JLabel("\uD3C9\uC810 : \u2605\u2605\u2605\u2605\u2606");
+		 bookGradeLabel = new JLabel("\uD3C9\uC810 : \u2605\u2605\u2605\u2605\u2606");
 		bookGradeLabel.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 16));
 		bookGradeLabel.setBounds(12, 92, 193, 26);
 		panel_1.add(bookGradeLabel);
@@ -244,6 +258,7 @@ public class BookInfo extends JFrame {
 
 		JTextArea bookDescriptionLabel = new JTextArea();
 		bookDescriptionLabel.setBackground(new Color(255, 255, 255));
+		
 		scrollPane.setViewportView(bookDescriptionLabel);
 		bookDescriptionLabel.setText(
 				"\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC\uC904\uAC70\uB9AC");
@@ -301,6 +316,9 @@ public class BookInfo extends JFrame {
 			rs = dbConn.executeQuery(
 					"SELECT BOOK_TITLE, BOOK_AUTHOR, BOOK_PUB, BOOK_PRICE, BOOK_ISBN, BOOK_LINK, BOOK_DESCRIPTION, BOOK_IMAGE, BOOK_GRADE\r\n"
 							+ "FROM BOOK\r\n" + "WHERE BOOK_ISBN = '" + book_ISBN + "' AND BOOK_PRE = TRUE;");
+			
+			
+			
 			while (rs.next()) {
 
 				bookNameLabel.setText(rs.getString("BOOK_TITLE")); // 책 제목 설정
@@ -594,6 +612,47 @@ public class BookInfo extends JFrame {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	//리뷰 작성뒤 도서 평점 및 리뷰 최신화 함수
+	public void recentlyReview() throws NumberFormatException, SQLException {
+		
+		ResultSet rs = dbConn.executeQuery("SELECT BOOK_GRADE FROM BOOK WHERE BOOK_ISBN = '" + book_ISBN + "' AND BOOK_PRE = TRUE;");
+		while(rs.next()) {
+			bookReviewGrade = Integer.parseInt(rs.getString("BOOK_GRADE")); // 책 평점
+		}
+		
+		rs = dbConn.executeQuery("SELECT COUNT(*) FROM REVIEW WHERE BOOK_ISBN = '" + book_ISBN + "';");
+		if (rs.next()) {
+			bookReviewCnt = rs.getInt(1);
+		}
+		
+		int bookScore = 0;
+		if (bookReviewCnt != 0) {
+			bookScore = bookReviewGrade / bookReviewCnt;
+		}
+		
+		switch (bookScore) {
+		case 0:
+			bookGradeLabel.setText("☆☆☆☆☆");
+			break;
+		case 1:
+			bookGradeLabel.setText("★☆☆☆☆");
+			break;
+		case 2:
+			bookGradeLabel.setText("★★☆☆☆");
+			break;
+		case 3:
+			bookGradeLabel.setText("★★★☆☆");
+			break;
+		case 4:
+			bookGradeLabel.setText("★★★★☆");
+			break;
+		case 5:
+			bookGradeLabel.setText("★★★★★");
+			break;
+		}
+		getUserReview();
 	}
 
 }

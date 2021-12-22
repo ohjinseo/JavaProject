@@ -32,6 +32,7 @@ public class WriteReview extends JFrame {
 	public WriteReview(String book_ISBN, String user_phone) {
 		this.user_phone = user_phone;
 		this.book_ISBN = book_ISBN;
+		
 		setTitle("\uD55C\uC904\uD3C9 \uC791\uC131");
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -216,8 +217,9 @@ public class WriteReview extends JFrame {
 						JOptionPane.showMessageDialog(null, "리뷰 등록실패", "리뷰등록실패", JOptionPane.ERROR_MESSAGE);
 					}
 					else {		
-						JOptionPane.showMessageDialog(null, "리뷰 감사합니다", "리뷰등록성공",JOptionPane.NO_OPTION);
 						updateBookGrade();
+						JOptionPane.showMessageDialog(null, "리뷰 감사합니다", "리뷰등록성공",JOptionPane.NO_OPTION);
+						
 					}
 				}catch(SQLException e1) {
 					e1.printStackTrace();

@@ -23,6 +23,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -283,6 +285,20 @@ public class AddBook extends JFrame {
 		bookPriceTextField.setColumns(10);
 		bookPriceTextField.setBounds(92, 118, 407, 26);
 		panel_1.add(bookPriceTextField);
+		bookPriceTextField.addKeyListener(new KeyAdapter() {
+	         public void keyPressed(KeyEvent ke) {
+	             String value = bookPriceTextField.getText();
+	             int l = value.length();
+	             if (ke.getKeyChar() >= '0' && ke.getKeyChar() <= '9' || ke.getKeyChar() == KeyEvent.VK_BACK_SPACE) {
+	            	 bookPriceTextField.setEditable(true);
+	            	 lblNewLabel_1.setText("");
+	             } else {
+	            	 bookPriceTextField.setEditable(false);
+	            	 lblNewLabel_1.setText("가격은 숫자만 가능합니다.");
+	             }
+	          }
+	       });
+		
 		bookPriceTextField.getDocument().addDocumentListener(new DocumentListener() {
 			  public void changedUpdate(DocumentEvent e) {
 				  
