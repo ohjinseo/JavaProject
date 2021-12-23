@@ -32,6 +32,8 @@ import javax.imageio.ImageIO;
 import javax.swing.ButtonGroup;
 import java.awt.SystemColor;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -67,7 +69,7 @@ public class UserInfo extends JFrame {
 	private JTextField userPhoneSecondTextField;
 	private JTextField userPhoneThirdTextField;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
-
+	int duple_flag = 1;
 	// 프레임 변수
 	private Main mainFrame;
 	private SearchBook searchBookFrame;
@@ -339,6 +341,12 @@ public class UserInfo extends JFrame {
 		userPhoneFirstTextField.setEditable(false);
 		userPhoneFirstTextField.setColumns(10);
 		userPhoneFirstTextField.setBounds(113, 132, 74, 30);
+		userPhoneFirstTextField.addKeyListener(new KeyAdapter() {// 키 눌렀다 땠을때
+			@Override
+			public void keyReleased(KeyEvent e) {
+				duple_flag=0;
+			}
+		});
 		panel.add(userPhoneFirstTextField);
 
 		// 유저 전화번호 두번째자리 텍스트필드
@@ -349,6 +357,12 @@ public class UserInfo extends JFrame {
 		userPhoneSecondTextField.setEditable(false);
 		userPhoneSecondTextField.setColumns(10);
 		userPhoneSecondTextField.setBounds(196, 132, 74, 30);
+		userPhoneSecondTextField.addKeyListener(new KeyAdapter() {// 키 눌렀다 땠을때
+			@Override
+			public void keyReleased(KeyEvent e) {
+				duple_flag=0;
+			}
+		});
 		panel.add(userPhoneSecondTextField);
 
 		// 유저 전화번후 세번째자리 텍스트필드
@@ -359,6 +373,12 @@ public class UserInfo extends JFrame {
 		userPhoneThirdTextField.setEditable(false);
 		userPhoneThirdTextField.setColumns(10);
 		userPhoneThirdTextField.setBounds(278, 132, 74, 30);
+		userPhoneThirdTextField.addKeyListener(new KeyAdapter() {// 키 눌렀다 땠을때
+			@Override
+			public void keyReleased(KeyEvent e) {
+				duple_flag=0;
+			}
+		});
 		panel.add(userPhoneThirdTextField);
 
 		// 유저 이메일 라벨
@@ -436,6 +456,39 @@ public class UserInfo extends JFrame {
 		dupleButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		dupleButton.setBounds(369, 130, 91, 32);
 		dupleButton.setEnabled(false);
+		dupleButton.addMouseListener(new MouseAdapter() { // 클릭이벤트
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				try { // DB 접근
+						// 전화번호
+					String phone = userPhoneFirstTextField.getText()
+							.concat(userPhoneSecondTextField.getText() + userPhoneThirdTextField.getText());
+
+					ResultSet rs = dbConn
+							.executeQuery("select USER_NAME, USER_PHONE from USER where USER_OUT_DATE is null and USER_PHONE != '"+user_phone+"';");
+					duple_flag=1;
+					// 쿼리문 결과
+					while (rs.next()) {
+						if (phone.equals(rs.getString("USER_PHONE"))) {
+							duple_flag = 0;
+							break;
+						}
+					}
+					if (duple_flag == 0) {
+						JOptionPane.showMessageDialog(null, "중복되는 전화번호 입니다.", "전화번호 중복 확인",
+								JOptionPane.ERROR_MESSAGE);
+					} else {
+						JOptionPane.showMessageDialog(null, "사용가능한 전화번호 입니다.", "전화번호 중복 확인",
+								JOptionPane.NO_OPTION);
+					}
+
+				} catch (SQLException e1) {
+					e1.printStackTrace(); // 에러 추적
+					System.out.println("전화번호 중복확인 에서 SQL 실행 에러");
+				}
+			}
+		});
+		
 		panel.add(dupleButton);
 
 		// 이미지 파일 필터
@@ -530,7 +583,7 @@ public class UserInfo extends JFrame {
 
 		table = new JTable();
 		String[] columns = { "제목", "저자", "출판사", "카테고리", "대출일", "반납일", "연체여부" }; // 테이블의 구성
-		
+
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -622,16 +675,16 @@ public class UserInfo extends JFrame {
 					dayComboBox.setEnabled(true);
 					manRadioButton.setEnabled(true);
 					womanRadioButton.setEnabled(true);
-					userPhoneFirstTextField.setEditable(true);
-					userPhoneSecondTextField.setEditable(true);
-					userPhoneThirdTextField.setEditable(true);
+					//userPhoneFirstTextField.setEditable(true);
+					//userPhoneSecondTextField.setEditable(true);
+					//userPhoneThirdTextField.setEditable(true);
 					userEmailTextField.setEditable(true);
 					userPasswordTextField.setEditable(true);
 					secondUserPasswordTextField.setEditable(true);
-					dupleButton.setEnabled(true);
+					//dupleButton.setEnabled(true);
 					editButton.setText("수정완료");
 				} else if (editButton.getText().equals("수정완료")
-						&& userPasswordTextField.getText().equals(secondUserPasswordTextField.getText())) {
+						&& userPasswordTextField.getText().equals(secondUserPasswordTextField.getText())&&duple_flag==1) {
 					user_img_path.setEnabled(false);
 					userImageFindButton.setEnabled(false);
 					userNameTextField.setEditable(false);
@@ -711,7 +764,9 @@ public class UserInfo extends JFrame {
 						e1.printStackTrace(); // 에러 추적
 						System.out.println("회원정보수정 에서 SQL 실행 에러");
 					}
-				} else { // 비밀번호와 중복확인이 일치하지 않으면 메시지창 띄움
+				}else if(duple_flag==0) {
+					JOptionPane.showMessageDialog(null, "전화번호 중복확인을 해주세요.", "중복확인 오류", JOptionPane.ERROR_MESSAGE);
+				}else { // 비밀번호와 중복확인이 일치하지 않으면 메시지창 띄움
 					JOptionPane.showMessageDialog(null, "비밀번호 중복확인이 일치하지 않습니다.", "중복확인 오류", JOptionPane.ERROR_MESSAGE);
 				}
 			}

@@ -608,6 +608,7 @@ public class SignUp extends JFrame {
 		get_verification_Button.setBounds(361, 172, 91, 32);
 		panel.add(get_verification_Button);
 		get_verification_Button.addMouseListener(new MouseAdapter() {	
+			
 			//코드받기 버튼 클릭시 호출되는 리스너
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -649,7 +650,7 @@ public class SignUp extends JFrame {
 					message.setText("인증코드 : "+verification_code);
 					
 					Transport.send(message);
-					JOptionPane.showMessageDialog(null, "인증코드가 발송되었습니다.", "인증코드 발송 안내", JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(null, "인증코드가 발송되었습니다. 네이버 메일이 아니라면 0000을 입력해 주세요.", "인증코드 발송 안내", JOptionPane.INFORMATION_MESSAGE);
 				}catch(MessagingException e1) {
 					System.out.println("회원가입 메일로 메시지 인증코드 발송 과정에서 오류발생");
 					e1.printStackTrace();
