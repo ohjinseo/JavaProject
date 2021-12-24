@@ -624,8 +624,8 @@ public class SignUp extends JFrame {
 				Properties	props = System.getProperties();
 				props.put("mail.smtp.host", host);
 				props.put("mail.smtp.auth", "true");
-				props.put("mail.smtp.port", port);
-				props.put("mail.smptp.ssl.enable", "true");
+				props.put("mail.smptp.port", port);
+				props.put("mail.smtp.ssl.enable", "true");
 				props.put("mail.smtp.ssl.trust", host);
 				
 				Session session = Session.getDefaultInstance(props,new javax.mail.Authenticator() {
@@ -640,7 +640,7 @@ public class SignUp extends JFrame {
 				//메세지 작성
 				try {
 					MimeMessage message = new MimeMessage(session);
-					message.setFrom(new InternetAddress(user));	//보내는 사람의 메일
+					message.setFrom(new InternetAddress(""));	//보내는 사람의 메일
 					message.setRecipient(Message.RecipientType.TO, new InternetAddress(to));	//받을 사람의 메일
 					
 					//제목
@@ -653,6 +653,7 @@ public class SignUp extends JFrame {
 					JOptionPane.showMessageDialog(null, "인증코드가 발송되었습니다. 네이버 메일이 아니라면 0000을 입력해 주세요.", "인증코드 발송 안내", JOptionPane.INFORMATION_MESSAGE);
 				}catch(MessagingException e1) {
 					System.out.println("회원가입 메일로 메시지 인증코드 발송 과정에서 오류발생");
+					JOptionPane.showMessageDialog(null, "네이버 메일이 아니라면 인증코드에 0000을 입력해 주세요.", "인증코드", JOptionPane.INFORMATION_MESSAGE);
 					e1.printStackTrace();
 				}
 			}
@@ -831,6 +832,13 @@ public class SignUp extends JFrame {
 		singUpButton.setFont(new Font("한컴산뜻돋움", Font.PLAIN, 12));
 		singUpButton.setBounds(105, 475, 91, 32);
 		panel.add(singUpButton);
+		
+		JLabel userEmailLabel_1 = new JLabel("\uC778\uC99D\uCF54\uB4DC");
+		userEmailLabel_1.setHorizontalAlignment(SwingConstants.LEFT);
+		userEmailLabel_1.setFont(new Font("한컴산뜻돋움", Font.BOLD, 15));
+		userEmailLabel_1.setBackground(Color.WHITE);
+		userEmailLabel_1.setBounds(12, 211, 81, 30);
+		panel.add(userEmailLabel_1);
 		
 
 	}

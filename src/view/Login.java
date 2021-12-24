@@ -89,7 +89,7 @@ public class Login extends JFrame {
 		contentPane.add(panel);
 		panel.setLayout(null);
 
-		JLabel idLabel = new JLabel("\uC544\uC774\uB514");
+		JLabel idLabel = new JLabel("\uC774\uBA54\uC77C");
 		idLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		idLabel.setFont(new Font("한컴산뜻돋움", Font.BOLD, 16));
 		idLabel.setBounds(12, 10, 80, 36);
